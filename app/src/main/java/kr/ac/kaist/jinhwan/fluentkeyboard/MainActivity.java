@@ -2,16 +2,77 @@ package kr.ac.kaist.jinhwan.fluentkeyboard;
 
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.text.Html;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.SeekBar;
+import android.widget.TextView;
 
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends ActionBarActivity implements MessageListener{
+    TextView outputView;
+    TextView rawView;
+    TextView convertedView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        final InputFieldView inputFieldView = (InputFieldView)findViewById(R.id.inputFieldView);
+        inputFieldView.setMessageListener(this);
+        outputView = (TextView)findViewById(R.id.outputView);
+
+        final TextView lastInputTV= (TextView)findViewById(R.id.lastInputTV);
+        final TextView minFlickTV = (TextView)findViewById(R.id.minFlickTV);
+
+        rawView = (TextView)findViewById(R.id.rawTV);
+        rawView.setText("");
+        convertedView = (TextView)findViewById(R.id.convertedTV);
+
+
+
+        SeekBar sb1 = (SeekBar)findViewById(R.id.seekBar1);
+        sb1.setProgress(40);
+        sb1.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                inputFieldView.setLastInputRadius(progress + 20);
+                lastInputTV.setText(String.format("LastInputR:%d", progress + 20));
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                lastInputTV.invalidate();
+            }
+        });
+        inputFieldView.setLastInputRadius(sb1.getProgress() + 20);
+
+        SeekBar sb2 = (SeekBar)findViewById(R.id.seekBar2);
+        sb2.setProgress(40);
+        sb2.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                inputFieldView.setMinFlickRadius(progress+20);
+                minFlickTV.setText(String.format("minFlickR:%d", progress+20));
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                minFlickTV.invalidate();
+            }
+        });
+        inputFieldView.setMinFlickRadius(sb1.getProgress()+20);
     }
 
 
@@ -46,5 +107,33 @@ public class MainActivity extends ActionBarActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+
+
+    @Override
+    public void listenMessage(Type type, String m) {
+        if (type == Type.direction) {
+            outputView.setText(Html.fromHtml(m), TextView.BufferType.SPANNABLE);
+        }else if(type == Type.text){
+            rawView.append(m);
+            Log.d("Activity", "raw : " + rawView.getText().toString());
+            String converted = TextConverter.convertRaw(rawView.getText().toString());
+            Log.d("Activity", "con : " + converted);
+            convertedView.setText(converted);
+        }else if(type == Type.special){
+            if(m.equals("bs")){
+                Log.d("Activity", "special :bs" );
+                String rawString = rawView.getText().toString();
+                if(rawString.length() >1 ) {
+                    rawString = rawString.substring(0, rawString.length() - 1);
+                    rawView.setText(rawString);
+                    convertedView.setText(TextConverter.convertRaw(rawString));
+                }else {
+                    rawView.setText("");
+                    convertedView.setText("");
+                }
+            }
+        }
     }
 }
