@@ -19,8 +19,9 @@
         android:layout_height="wrap_content"
         class="kr.ac.kaist.jinhwan.fluentkeyboard.InputFieldView"
         android:id="@+id/inputFieldView"
+        android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true" />
+        android:layout_alignParentStart="true" />
 
     <SeekBar
         android:layout_width="500dp"
@@ -82,18 +83,20 @@
         android:id="@+id/imageView"
         android:src="@drawable/capture"
         android:scaleType="fitCenter"
-        android:layout_below="@+id/convertedTV"
-        android:layout_toRightOf="@+id/outputView"
-        android:layout_toEndOf="@+id/outputView" />
+        android:layout_centerVertical="true"
+        android:layout_toRightOf="@+id/ringUIView"
+        android:layout_toEndOf="@+id/ringUIView" />
+
+
 
     <view
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        class="kr.ac.kaist.jinhwan.fluentkeyboard.RingUIView"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        Wclass="kr.ac.kaist.jinhwan.fluentkeyboard.RingUIView"
         android:id="@+id/ringUIView"
         android:background="@drawable/ring_ui_design"
         android:layout_below="@+id/convertedTV"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="128dp" />
+
+         />
 
 </RelativeLayout>
