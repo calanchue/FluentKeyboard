@@ -25,7 +25,7 @@
         android:layout_alignParentStart="true" />
 
     <SeekBar
-        android:layout_width="500dp"
+        android:layout_width="200dp"
         android:layout_height="wrap_content"
         android:id="@+id/seekBar1"
         android:layout_alignParentTop="true"
@@ -33,7 +33,7 @@
         android:layout_toEndOf="@+id/lastInputTV" />
 
     <SeekBar
-        android:layout_width="500dp"
+        android:layout_width="200dp"
         android:layout_height="wrap_content"
         android:id="@+id/seekBar2"
         android:layout_below="@+id/seekBar1"
@@ -94,9 +94,30 @@
         android:layout_height="250dp"
         android:id="@+id/ringUIView"
         android:background="@drawable/ring_ui_design"
-        android:layout_below="@+id/convertedTV"
 
-        />
+        android:layout_alignTop="@+id/imageView"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <Switch
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:text="FixLPos"
+        android:id="@+id/fixLPosSW"
+        android:layout_below="@+id/seekBar2"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="textMultiLine"
+        android:ems="10"
+        android:id="@+id/editText"
+        android:layout_below="@+id/convertedTV"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:text="editTExt" />
 
     <!--<view
         android:layout_width="200dp"
