@@ -4,8 +4,7 @@
 
     android:thickness="10dp"
     android:useLevel="false">
-    <solid android:color="#E0FFD8"/>
-    <stroke android:width="4dp" android:color="#000" />
+    <solid android:color="#f00"/>
 
 
 </shape>

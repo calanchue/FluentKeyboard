@@ -11,14 +11,16 @@ import android.view.ViewGroup;
 
 import java.util.LinkedList;
 
+import static kr.ac.kaist.jinhwan.fluentkeyboard.Direction.getDirection;
+import static kr.ac.kaist.jinhwan.fluentkeyboard.Direction.getDirection4;
 
 
 public class InputFieldView extends ViewGroup {
 
     private float mCurX, mCurY, mDownX, mDownY, mLastX, mLastY;
     private float LAST_INPUT_RADIUS = 100;
-    private float MIN_FLICK_RADIUS = 100;
-    private float UI_SIZE = 200;
+    private float MIN_FLICK_RADIUS = S.getInstance().minFlickRadius;
+    private float UI_SIZE = S.getInstance().maxFlickRadius;
 
     private Paint paint = new Paint();
     private Paint last_paint = new Paint();
@@ -28,9 +30,14 @@ public class InputFieldView extends ViewGroup {
     private int keyPadState = 0;
     private int MAX_KEY_PAD =2;
     private int keyPadInterval = 300;
-    private long lastAClick = 0;
+    private long lastAClickTime = 0;
+
+    private long lastDownTime = 0;
+    private long longPressInterval = 1000;
 
     private boolean isMoving, isLastInput =false;
+
+    public RingUIView ringUIView;
 
     private enum keyPadType{
         J1,J2,M //j =자음, m = 모음
@@ -107,6 +114,22 @@ public class InputFieldView extends ViewGroup {
     }
 
 
+    public void setLastInput(float x, float y){
+        Log.d("InputField", String.format("try to set last input to %f,%f", x, y));
+        if(S.getInstance().fixLastInput){
+            if(mLastX == 0 && mLastY == 0){
+                mLastX = x;
+                mLastY = y;
+                Log.d("InputField", String.format("last input changed  to %f,%f", x, y));
+            }
+        }else{
+            mLastX = x;
+            mLastY = y;
+        }
+    }
+
+
+
     @Override
     public boolean onTouchEvent(MotionEvent e) {
         // MotionEvent reports input details from the touch screen
@@ -116,8 +139,8 @@ public class InputFieldView extends ViewGroup {
         float x = e.getX();
         float y = e.getY();
 
-        mCurX = x;
-        mCurY =y;
+        mCurX=x;
+        mCurY=y;
 
         isMoving = false;
 
@@ -126,46 +149,54 @@ public class InputFieldView extends ViewGroup {
                 isMoving = true;
 
                 if(Math.sqrt(Math.pow(mDownX-x,2) + Math.pow(mDownY-y,2)) > MIN_FLICK_RADIUS){
-                    flick_valid = true;
                 }else{
+                    flick_valid = true;
+                    if(System.currentTimeMillis() - lastDownTime > longPressInterval){
+                        //force last position
+                        mLastX = x;
+                        mLastY =y;
+                    }
                     flick_valid =false;
                 }
+
+
                 //Log.v("inputFiledView", "move");
                 invalidate();
                 break;
 
             case MotionEvent.ACTION_DOWN:
-                if(System.currentTimeMillis() -lastAClick > keyPadInterval){
+                if(System.currentTimeMillis() - lastAClickTime > keyPadInterval){
                     keyPadState = 0;
                 }
                 mDownX = x;
                 mDownY = y;
                 flick_valid = false;
+                lastDownTime = System.currentTimeMillis();
                 //Log.d("inputFiledView", "down");
                 break;
             case MotionEvent.ACTION_UP:
                 if(isLastInput && Math.sqrt(Math.pow(mLastX-mDownX,2) + Math.pow(mLastY-mDownY,2)) < LAST_INPUT_RADIUS){
-                //is start point in LastInputCircle
+                    // starting point == LastInputCircle
                     if(Math.sqrt(Math.pow(mDownX-x,2) + Math.pow(mDownY-y,2)) > MIN_FLICK_RADIUS){
+                        //AFlick
                         //printDirection("<font color='magenta'>Flick</font>");
                         Direction dir = getDirection4(mDownX, mDownY, x, y);
                         printDirection(String.format("<font color='magenta'>%s</font>,", dir.toString()));
                         printText(mapInputToKey(keyPadType.M, dir));
                         isLastInput = true;
-                        mLastX =x;
-                        mLastY = y;
-
+                        setLastInput(x,y);
                     }else{
+                        //AClick
                         printDirection("<font color='magenta'>Click</font>");
                         printText(mapInputToKey(keyPadType.M, Direction.NON));
                         isLastInput = true;
-                        mLastX =x;
-                        mLastY = y;
+                        setLastInput(x,y);
                     }
                 }else{
                     if(Math.sqrt(Math.pow(mDownX-x,2) + Math.pow(mDownY-y,2)) > MIN_FLICK_RADIUS){
+                        // normal flick end
                         Direction dir = getDirection(mDownX, mDownY, x, y);
-                        if(dir != Direction.SE) {
+                        if(dir != Direction.W) {
                             if (keyPadState == 0) {
                                 printText(mapInputToKey(keyPadType.J1, dir));
                                 printDirection(dir.toString());
@@ -173,7 +204,7 @@ public class InputFieldView extends ViewGroup {
                                 printText(mapInputToKey(keyPadType.J2, dir));
                                 printDirection(String.format("<font color='blue'>%s</font>,", dir.toString()));
                             }
-                        }else if(dir == Direction.SE){
+                        }else if(dir == Direction.W){
                             if (keyPadState == 0){
                                 Log.d("inputfieldview", "bs");
                                 messageListener.listenMessage(MessageListener.Type.special, "bs");
@@ -182,178 +213,73 @@ public class InputFieldView extends ViewGroup {
                             }
                         }
                         isLastInput = true;
-                        mLastX =x;
-                        mLastY = y;
+                        setLastInput(x,y);
                     }else{
+                        // normal click or press end
+                        lastAClickTime = System.currentTimeMillis();
                         printDirection("A_click ");
-                        keyPadState = ++keyPadState%MAX_KEY_PAD;
-                        lastAClick = System.currentTimeMillis();
+                        keyPadState = ++keyPadState % MAX_KEY_PAD;
+
                         isLastInput = true;
                     }
                 }
-
                 isMoving =false;
                 invalidate();
                 break;
         }
 
         //Log.d("inputFiledView", String.format("%f %f : %f %f", mDownX,mDownY,mCurX, mCurY));
-
+        ringUIView.otherOnTouchEvent(e);
 
         return true;
     }
 
 
-    /**
-     * Given two points in the plane p1=(x1, x2) and p2=(y1, y1), this method
-     * returns the direction that an arrow pointing from p1 to p2 would have.
-     * @param x1 the x position of the first point
-     * @param y1 the y position of the first point
-     * @param x2 the x position of the second point
-     * @param y2 the y position of the second point
-     * @return the direction
-     */
-    public Direction getDirection(float x1, float y1, float x2, float y2){
-        double angle = getAngle(x1, y1, x2, y2);
-        return Direction.get(angle);
-    }
-
-    public Direction getDirection4(float x1, float y1, float x2, float y2){
-        double angle = getAngle(x1, y1, x2, y2);
-        return Direction.get4(angle);
-    }
-
-    /**
-     *
-     * Finds the angle between two points in the plane (x1,y1) and (x2, y2)
-     * The angle is measured with 0/360 being the X-axis to the right, angles
-     * increase counter clockwise.
-     *
-     * @param x1 the x position of the first point
-     * @param y1 the y position of the first point
-     * @param x2 the x position of the second point
-     * @param y2 the y position of the second point
-     * @return the angle between two points
-     */
-    public double getAngle(float x1, float y1, float x2, float y2) {
-        double rad = Math.atan2(y1-y2,x2-x1) + Math.PI;
-        return (rad*180/Math.PI + 180)%360;
-    }
 
 
-    public enum Direction {
-        E,
-        NE,
-        N,
-        NW,
-        W,
-        SW,
-        S,
-        SE,
-        NON;
-
-        /**
-         * Returns a direction given an angle.
-         * Directions are defined as follows:
-         * <p/>
-         * Up: [45, 135]
-         * Right: [0,45] and [315, 360]
-         * Down: [225, 315]
-         * Left: [135, 225]
-         *
-         * @param angle an angle from 0 to 360 - e
-         * @return the direction of an angle
-         */
-        public static Direction get(double angle) {
-            if (inRange(angle, 0, 360*1/16) || inRange(angle, 360*15/16, 360)) {
-                return Direction.E;
-            }else if (inRange(angle, 360*1/16, 360*3/16) ) {
-                return Direction.NE;
-            }else if (inRange(angle, 360*3/16, 360*5/16) ) {
-                return Direction.N;
-            }else if (inRange(angle, 360*5/16, 360*7/16) ) {
-                return Direction.NW;
-            }else if (inRange(angle, 360*7/16, 360*9/16) ) {
-                return Direction.W;
-            }else if (inRange(angle, 360*9/16, 360*11/16) ) {
-                return Direction.SW;
-            }else if (inRange(angle, 360*11/16, 360*13/16) ) {
-                return Direction.S;
-            }else if (inRange(angle, 360*13/16, 360*15/16) ) {
-                return Direction.SE;
-            }else{
-                return null;
-            }
-/*
-            if (inRange(angle, 45, 135)) {
-                return Direction.N;
-            } else if (inRange(angle, 0, 360*1/16) || inRange(angle, 360*15/16, 360)) {
-                return Direction.E;
-            } else if (inRange(angle, 225, 315)) {
-                return Direction.S;
-            } else {
-                return Direction.W;
-            }
-*/
-        }
-        public static Direction get4(double angle) {
-            if (inRange(angle, 45, 135)) {
-                return Direction.N;
-            } else if (inRange(angle, 0, 360*1/16) || inRange(angle, 360*15/16, 360)) {
-                return Direction.E;
-            } else if (inRange(angle, 225, 315)) {
-                return Direction.S;
-            } else {
-                return Direction.W;
-            }
-        }
 
 
-        /**
-         * @param angle an angle
-         * @param init  the initial bound
-         * @param end   the final bound
-         * @return returns true if the given angle is in the interval [init, end).
-         */
-        private static boolean inRange(double angle, float init, float end) {
-            return (angle >= init) && (angle < end);
-        }
-    }
 
     private char mapInputToKey(keyPadType k, Direction d){
         if(k == keyPadType.J1){
             switch (d){
                 case E:
-                    return 'ㅇ';
-                case NE:
-                    return 'ㅈ';
-                case N:
-                    return 'ㅅ';
-                case NW:
                     return 'ㅂ';
-                case W:
+                case NE:
                     return 'ㄷ';
-                case SW:
+                case N:
                     return 'ㄴ';
-                case S:
+                case NW:
                     return 'ㄱ';
+                case W:
+                    //backsapce
+                    return ' ';
+                case SW:
+                    return 'ㅇ';
+                case S:
+                    return 'ㅈ';
+                case SE:
+                    return 'ㅅ';
             }
         }else if(k == keyPadType.J2){
             switch (d){
                 case E:
-                    return 'ㅁ';
-                case NE:
-                    return 'ㅊ';
-                case N:
-                    return 'ㅎ';
-                case NW:
                     return 'ㅍ';
-                case W:
+                case NE:
                     return 'ㅌ';
-                case SW:
+                case N:
                     return 'ㄹ';
-                case S:
+                case NW:
                     return 'ㅋ';
+                case W:
+                    //bs
+                    return ' ';
+                case SW:
+                    return 'ㅁ';
+                case S:
+                    return 'ㅊ';
+                case SE:
+                    return 'ㅎ';
             }
         }else if(k == keyPadType.M){
             switch (d){
@@ -370,20 +296,30 @@ public class InputFieldView extends ViewGroup {
         return 'E';
     }
 
+    private void drawGuide(Canvas canvas, int xOff, int yOff){
+        if(isMoving) {
+            canvas.drawLine(mDownX+xOff, mDownY+yOff, mCurX+xOff, mCurY+yOff, flick_valid ? last_paint : paint);
+            canvas.drawCircle(mDownX+xOff,mDownY+yOff,MIN_FLICK_RADIUS,flick_valid ? last_paint : paint);
+            for(Coord coord :UIPoints){
+                canvas.drawLine(mDownX+xOff, mDownY+yOff, mDownX+coord.x+xOff, mDownY+coord.y+yOff, keyPadState ==0 ?paint : keypad2Paint);
+            }
+        }
+
+    }
+
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         //Log.d("onDraw", String.format("%f %f : %f %f", mDownX,mDownY,mCurX, mCurY));
-        if(isMoving) {
-            canvas.drawLine(mDownX, mDownY, mCurX, mCurY, flick_valid ? last_paint : paint);
-            canvas.drawCircle(mDownX,mDownY,MIN_FLICK_RADIUS,flick_valid ? last_paint : paint);
-            for(Coord coord :UIPoints){
-                canvas.drawLine(mDownX, mDownY, mDownX+coord.x, mDownY+coord.y, keyPadState ==0 ?paint : keypad2Paint);
-            }
-        }
+
+        drawGuide(canvas,0,0);
+        drawGuide(canvas, -300,-300);
+
         if(isLastInput){
             canvas.drawCircle(mLastX, mLastY, LAST_INPUT_RADIUS, last_paint);
         }
     }
+
+
 }

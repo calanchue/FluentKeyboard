@@ -7,6 +7,8 @@
     android:background="@drawable/alphabet_view_design"
     android:autoText="false"
     android:padding="10dp"
-    android:textSize="50dp">
+    android:textSize="50dp"
+    android:elevation="3dp"
+    >
 
 </kr.ac.kaist.jinhwan.fluentkeyboard.AlphabetView>

@@ -1,7 +1,7 @@
 package kr.ac.kaist.jinhwan.fluentkeyboard;
 
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.text.Html;
 import android.util.Log;
 import android.view.Menu;
@@ -14,6 +14,7 @@ public class MainActivity extends ActionBarActivity implements MessageListener{
     TextView outputView;
     TextView rawView;
     TextView convertedView;
+    RingUIView ringUIView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,6 +74,12 @@ public class MainActivity extends ActionBarActivity implements MessageListener{
             }
         });
         inputFieldView.setMinFlickRadius(sb1.getProgress()+20);
+
+
+        ringUIView = (RingUIView)findViewById(R.id.ringUIView);
+        inputFieldView.ringUIView = ringUIView;
+
+
     }
 
 
@@ -108,6 +115,8 @@ public class MainActivity extends ActionBarActivity implements MessageListener{
 
         return super.onOptionsItemSelected(item);
     }
+
+
 
 
 
