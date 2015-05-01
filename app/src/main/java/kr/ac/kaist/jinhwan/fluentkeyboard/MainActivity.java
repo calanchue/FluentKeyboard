@@ -1,37 +1,51 @@
 package kr.ac.kaist.jinhwan.fluentkeyboard;
 
+import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.support.v4.view.MotionEventCompat;
 import android.support.v7.app.ActionBarActivity;
-import android.text.Editable;
 import android.text.Html;
 import android.text.Layout;
-import android.text.TextWatcher;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.NumberPicker;
 import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
 
 public class MainActivity extends ActionBarActivity implements MessageListener{
+    public static final String PREFS_NAME = "MyPrefsFile";
+    SharedPreferences settings;
+
     TextView outputView;
     TextView rawView;
-    TextView convertedView;
+    //TextView convertedView;
     EditText convertedET;
     RingUIView ringUIView;
     InputFieldView inputFieldView;
 
+    private final static String  MAIN_SETTING_HEIGHT_KEY = "mainSettingHeight";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        settings = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         final InputFieldView inputFieldView = (InputFieldView)findViewById(R.id.inputFieldView);
@@ -43,7 +57,7 @@ public class MainActivity extends ActionBarActivity implements MessageListener{
 
         rawView = (TextView)findViewById(R.id.rawTV);
         rawView.setText("");
-        convertedView = (TextView)findViewById(R.id.convertedTV);
+        //convertedView = (TextView)findViewById(R.id.convertedTV);
 
         getWindow().setSoftInputMode(
                 WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN
@@ -52,6 +66,7 @@ public class MainActivity extends ActionBarActivity implements MessageListener{
         ringUIView = (RingUIView)findViewById(R.id.ringUIView);
         inputFieldView.ringUIView = ringUIView;
 
+/*
         convertedView.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -69,14 +84,22 @@ public class MainActivity extends ActionBarActivity implements MessageListener{
 
             }
         });
+*/
 
         final SelectionWatchEditView editText = (SelectionWatchEditView)findViewById(R.id.selectionWatchET);
         convertedET = editText;
+        editText.setFocusable(false);
         editText.addSelectionWatcher(new SelectionWatchEditView.SelectionWatcher() {
             @Override
             public void onSelectionChanged(int selStart, int selEnd) {
                 refreshRingUIPosition();
 
+            }
+        });
+        editText.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return false;
             }
         });
 
@@ -158,6 +181,65 @@ public class MainActivity extends ActionBarActivity implements MessageListener{
                 inputFieldView.showVIPosHistorey();
             }
         });
+
+        LinearLayout mainContainer = (LinearLayout) findViewById(R.id.mainSettingContainer);
+        DisplayMetrics metrics = getResources().getDisplayMetrics();
+        mainContainer.getLayoutParams().height = settings.getInt(MAIN_SETTING_HEIGHT_KEY , (int)(300 * metrics.density + 0.5f));
+
+        final View mainSettingHeightBar = (View)findViewById(R.id.mainSettingHeightBar);
+        mainSettingHeightBar.setOnTouchListener(new View.OnTouchListener() {
+
+            float mLastX = 0;
+            float mLastY = 0;
+            int originalHeight = 0;
+
+            @Override
+            public boolean onTouch(View v, MotionEvent ev) {
+                LinearLayout mainContainer = (LinearLayout) findViewById(R.id.mainSettingContainer);
+
+                int mActivePointerId;
+
+                float x = ev.getX();
+                float y = ev.getY();
+
+                switch (ev.getAction()) {
+                    case MotionEvent.ACTION_DOWN: {
+                        final int pointerIndex = MotionEventCompat.getActionIndex(ev);
+                        // Remember where we started (for dragging)
+                        mLastX = x;
+                        mLastY = y;
+                        originalHeight = mainContainer.getLayoutParams().height;
+                        mainSettingHeightBar.setBackgroundColor(Color.RED);
+                        break;
+                    }
+                    case MotionEvent.ACTION_MOVE: {
+                        // Calculate the distance moved
+                        final float dy = y - mLastY;
+                        int newHeight = (int) (originalHeight + dy);
+                        newHeight = newHeight > 100 ? newHeight : 100;
+
+                        mainContainer.getLayoutParams().height = newHeight;
+                        mainContainer.invalidate();
+                        mainContainer.requestLayout();
+                 /*       mLastX = x;
+                        mLastY = y;*/
+
+                        break;
+
+                    }
+                    case MotionEvent.ACTION_UP: {
+                        mainSettingHeightBar.setBackgroundColor(Color.BLACK);
+                        SharedPreferences.Editor editor = settings.edit();
+                        editor.putInt(MAIN_SETTING_HEIGHT_KEY,  mainContainer.getLayoutParams().height);
+                        editor.commit();
+
+                        break;
+                    }
+                }
+                return true;
+            }
+        });
+
 
     }
 
@@ -318,7 +400,7 @@ public class MainActivity extends ActionBarActivity implements MessageListener{
         float y = baseline + ascent/2;
 
         Log.v("editText", String.format("baseline %d, ascent = %d", baseline, ascent));
-        Log.d("editText", String.format("cursur position = %f, %f", x, y));
+        Log.d("editText", String.format("cursor position = %f, %f", x, y));
         int newX = (int)(convertedET.getX() + x - ringUIView.getWidth()/2);
         int newY = (int)(convertedET.getY() + y - ringUIView.getHeight()/2);
         newX += S.getInstance().ringOffX;
@@ -329,6 +411,16 @@ public class MainActivity extends ActionBarActivity implements MessageListener{
         params.addRule(RelativeLayout.ALIGN_PARENT_TOP);
         ringUIView.animate().translationX(newX).translationY(newY).setInterpolator(new AccelerateDecelerateInterpolator()).setDuration(200);
         //params.setMargins((int)newX, (int)newY, 0, 0);
+
+        Switch onTrackSW = (Switch)findViewById(R.id.hoverTrackSW);
+        onTrackSW.setChecked(S.getInstance().hoverTrack);
+        onTrackSW.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                S.getInstance().hoverTrack = isChecked;
+            }
+        });
+
     }
 
     @Override
@@ -375,7 +467,7 @@ public class MainActivity extends ActionBarActivity implements MessageListener{
 
 
     public void setConvertedText(String converted){
-        convertedView.setText(converted);
+        //convertedView.setText(converted);
         convertedET.setText(converted);
         convertedET.setSelection(convertedET.getText().length());
     }

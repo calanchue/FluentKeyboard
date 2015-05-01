@@ -20,69 +20,37 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true">
+        android:layout_alignParentStart="true"
+        android:id="@+id/linearLayout">
 
 
         <LinearLayout
             android:orientation="horizontal"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+            android:layout_height="300dp"
+            android:id="@+id/mainSettingContainer">
             <ScrollView
                 android:layout_width="300dp"
-                android:layout_height="300dp"
+                android:layout_height="fill_parent"
                 android:id="@+id/scrollView">
                 <include
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     layout="@layout/setting_view" />
             </ScrollView>
-            <LinearLayout
-                android:orientation="vertical"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
-                <Button
-                    android:text="SAVE"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/saveSettingB"/>
-                <Button
-                    android:text="LOAD"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/loadSettingB" />
+            <ScrollView
+                android:layout_width="300dp"
+                android:layout_height="fill_parent"
+                >
 
-   <!--             <ImageView
-                    android:layout_width="150dp"
-                    android:layout_height="150dp"
-                    android:id="@+id/imageView"
-                    android:src="@drawable/capture"
-                    android:scaleType="fitCenter"
-                    android:layout_centerVertical="true"
-                    android:layout_toRightOf="@+id/ringUIView"
-                    android:layout_toEndOf="@+id/ringUIView" />-->
-                <Button
-                    android:text="Gesture\nHistory"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/showInputGestureHistoryB" />
-
-                <Button
-                    android:text="Vowel Input\nPos History"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/showVowelInputPositionHistoryB" />
-                <Button
-                    android:text="RESET"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/resetB" />
-            </LinearLayout>
+            </ScrollView>
 
         </LinearLayout>
 
         <View android:layout_width="fill_parent"
-            android:layout_height="1dip"
-            android:background="@android:color/black"/>
+            android:layout_height="30dip"
+            android:background="@android:color/black"
+            android:id="@+id/mainSettingHeightBar"/>
 
         <TextView android:text="outputView" android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -90,17 +58,18 @@
             android:textSize="@dimen/abc_text_size_large_material"
             />
 
-        <TextView android:text="rawTV" android:layout_width="wrap_content"
+        <HorizontalScrollView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/rawTV"
-            android:textSize="@dimen/abc_text_size_large_material"
-            />
+            android:id="@+id/horizontalScrollView"
+            android:transcriptMode="alwaysScroll">
+            <TextView android:text="rawTV" android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/rawTV"
+                android:textSize="@dimen/abc_text_size_large_material"
+                />
+         </HorizontalScrollView>
 
-        <TextView android:text="convertedTv" android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/convertedTV"
-            android:textSize="@dimen/abc_text_size_large_material"
-            />
 
         <kr.ac.kaist.jinhwan.fluentkeyboard.SelectionWatchEditView
             android:layout_width="300dp"
@@ -118,5 +87,7 @@
         android:background="@drawable/ring_ui_design"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
+
+
 
 </RelativeLayout>

@@ -36,6 +36,12 @@ public class RingUIView extends RelativeLayout implements OtherTouchListener {
     private float mDownY;
     private boolean flick_valid;
 
+    private float VIUIPro = 0.1f;
+    private float hoverX;
+    private float hoverY;
+    private boolean hoverIn;
+
+
     AlphabetView currLeaf = null;
 
     @Override
@@ -105,13 +111,39 @@ public class RingUIView extends RelativeLayout implements OtherTouchListener {
         super.onDraw(canvas);
         //Log.d("onDraw", String.format("%f %f : %f %f", mDownX,mDownY,mCurX, mCurY));
 
-            canvas.drawCircle(getWidth()/2, getHeight()/2 , 1, paint);
+        paint.setColor(Color.RED);
+        canvas.drawCircle(getWidth()/2, getHeight()/2 , 1, paint);
+
+        paint.setColor(hoverIn?Color.MAGENTA : Color.GRAY);
+        float VIUISize = VIUIPro * getHeight();
+        canvas.drawCircle(getWidth()/2, getHeight()/2, VIUISize , paint);
+
+        paint.setColor(Color.MAGENTA);
+        float length = VIUISize/2;
+        canvas.drawLine(hoverX -length, hoverY ,hoverX +length, hoverY, paint );
+        canvas.drawLine(hoverX, hoverY-length ,hoverX, hoverY+length, paint );
+
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         return false; // this view is transparent for events.
     }
+
+
+    public void OnHoverOnVI(MotionEvent event ,float VIX, float VIY){
+        float VIUISize = VIUIPro * getHeight();
+        float radius = S.getInstance().lastInputRadius;
+        float transPro = VIUISize/radius;
+
+        hoverIn = Math.sqrt(Math.pow(event.getX()-VIX, 2) + Math.pow(event.getY()-VIY, 2)) < S.getInstance().lastInputRadius;
+
+        hoverX = (event.getX() - VIX) * transPro + getWidth()/2;
+        hoverY = (event.getY() - VIY )* transPro + getHeight()/2;
+
+        invalidate();
+    }
+
 
     @Override
     public boolean otherOnTouchEvent(MotionEvent e) {

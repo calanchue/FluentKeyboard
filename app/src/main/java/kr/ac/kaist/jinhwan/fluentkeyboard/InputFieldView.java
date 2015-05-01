@@ -5,10 +5,10 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
-import android.graphics.Point;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
@@ -46,6 +46,9 @@ public class InputFieldView extends ViewGroup {
     private enum keyPadType{
         J1,J2,M //j =자음, m = 모음
     }
+
+    float hoverX = 0 ;
+    float hoverY = 0;
 
 
 
@@ -86,6 +89,21 @@ public class InputFieldView extends ViewGroup {
         for(double rad : radianList){
             UIPoints.add(new Coord(UI_SIZE*Math.cos(rad), UI_SIZE*Math.sin(rad)));
         }
+
+        this.setOnHoverListener(new OnHoverListener() {
+            @Override
+            public boolean onHover(View v, MotionEvent event) {
+                if(S.getInstance().hoverTrack){
+                    Log.d("hoverInput", String.format("%f %f", event.getX(), event.getY()));
+                    hoverX = event.getX();
+                    hoverY = event.getY();
+                    invalidate();
+                    ringUIView.OnHoverOnVI(event, mLastX, mLastY);
+                    return true;
+                }
+                return false;
+            }
+        });
     }
 
     @Override
@@ -105,7 +123,7 @@ public class InputFieldView extends ViewGroup {
     }
 
     private void printText(char s){
-       printText(""+s);
+       printText("" + s);
     }
 
     private static class InputData{
@@ -116,7 +134,7 @@ public class InputFieldView extends ViewGroup {
         GestureType type;
 
         public static enum GestureType{
-            AClick,AFlick,Click,Flick
+            AClick,AFlick,Click,Flick,Wild
         }
 
         long time;
@@ -126,6 +144,16 @@ public class InputFieldView extends ViewGroup {
             this.toX= toX;
             this.toY = toY;
             this.type = type;
+            time = System.currentTimeMillis();
+        }
+
+        //add wild
+        public InputData(float x, float y){
+            this.fromX = x;
+            this.fromY = y;
+            this.toX = x;
+            this.toY = y;
+            this.type = GestureType.Wild;
             time = System.currentTimeMillis();
         }
     }
@@ -283,6 +311,10 @@ public class InputFieldView extends ViewGroup {
                     flick_valid = true;
                     if(System.currentTimeMillis() - lastDownTime > S.getInstance().longPressInterval){
                         //force last position
+                        recentInputHistory = new ArrayList<>();
+                        for(int  i = 0 ; i< S.getInstance().adaptHistorySize; i++){
+                            recentInputHistory.add(new InputData(x,y));
+                        }
                         mLastX = x;
                         mLastY =y;
                     }
@@ -590,6 +622,10 @@ public class InputFieldView extends ViewGroup {
             drawVIPosHistory = false;
             drawVIPosHistory(canvas);
         }
+
+
+        canvas.drawLine(hoverX -100, hoverY ,hoverX +100, hoverY, last_paint );
+        canvas.drawLine(hoverX, hoverY-100 ,hoverX, hoverY+100, last_paint );
     }
 
 

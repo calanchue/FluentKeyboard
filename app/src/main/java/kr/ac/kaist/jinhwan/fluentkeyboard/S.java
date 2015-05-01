@@ -63,6 +63,7 @@ public class S implements Serializable{
     public float longPressInterval = 500;
     public InputOption inputOption = InputOption.Fixed;
     public int adaptHistorySize = 10;
+    public boolean hoverTrack = false;
 
 
     public static void makeDefaultSaveDirectory(){
