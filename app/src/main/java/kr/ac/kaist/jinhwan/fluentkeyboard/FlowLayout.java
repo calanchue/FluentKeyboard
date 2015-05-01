@@ -14,8 +14,23 @@ public class FlowLayout extends ViewGroup{
     private int paddingHorizontal;
     private int paddingVertical;
 
+    public FlowLayout(Context context) {
+        super(context);
+        init();
+    }
+
     public FlowLayout(Context context, AttributeSet attrs) {
-        super(context, attrs);
+        this(context, attrs, 0);
+    }
+
+    public FlowLayout(Context context, AttributeSet attrs, int defStyle) {
+        super(context, attrs, defStyle);
+        init();
+    }
+
+    private void init() {
+        paddingHorizontal = getResources().getDimensionPixelSize(R.dimen.flowlayout_horizontal_padding);
+        paddingVertical = getResources().getDimensionPixelSize(R.dimen.flowlayout_vertical_padding);
     }
 
 

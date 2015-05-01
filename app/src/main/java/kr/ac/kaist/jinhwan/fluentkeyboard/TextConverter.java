@@ -2,12 +2,9 @@ package kr.ac.kaist.jinhwan.fluentkeyboard;
 
 import android.util.Log;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 public class TextConverter {
@@ -91,7 +88,7 @@ public class TextConverter {
             boolean k2 = l2.contains(letter);
             boolean k3 = l3.contains(letter);
 
-            if(!k1 && !k2 && !k3 ){
+            if(!k1 && !k2 && !k3 || letter == ' ' ){
                 p_result.append(letter);
             }
 

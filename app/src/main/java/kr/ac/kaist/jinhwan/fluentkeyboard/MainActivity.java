@@ -5,8 +5,10 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v7.app.ActionBarActivity;
+import android.text.Editable;
 import android.text.Html;
 import android.text.Layout;
+import android.text.TextWatcher;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
@@ -56,6 +58,22 @@ public class MainActivity extends ActionBarActivity implements MessageListener{
 
 
         rawView = (TextView)findViewById(R.id.rawTV);
+        rawView.addTextChangedListener( new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                rawView.scrollTo(0, rawView.getRight());
+            }
+        });
         rawView.setText("");
         //convertedView = (TextView)findViewById(R.id.convertedTV);
 

@@ -362,6 +362,20 @@ public class InputFieldView extends ViewGroup {
                     if(Math.sqrt(Math.pow(mDownX-x,2) + Math.pow(mDownY-y,2)) > S.getInstance().minFlickRadius){
                         // normal flick end
                         Direction dir = getDirection(mDownX, mDownY, x, y);
+
+                        // Direction it started
+                        Direction startDir  = getDirection4(mLastX, mLastY, mDownX, mDownY);
+                        switch (startDir){
+                            case N:
+                                break;
+                            case S:
+                                break;
+                            case E:
+                                break;
+                            case W:
+                                break;
+                        }
+
                         if(dir != Direction.W) {
                             if (keyPadState == 0) {
                                 printText(mapInputToKey(keyPadType.J1, dir));
