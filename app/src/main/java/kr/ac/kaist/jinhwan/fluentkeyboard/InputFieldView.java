@@ -4,12 +4,16 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Path;
+import android.graphics.Point;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.ViewGroup;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 
 import static kr.ac.kaist.jinhwan.fluentkeyboard.Direction.getDirection;
 import static kr.ac.kaist.jinhwan.fluentkeyboard.Direction.getDirection4;
@@ -18,8 +22,7 @@ import static kr.ac.kaist.jinhwan.fluentkeyboard.Direction.getDirection4;
 public class InputFieldView extends ViewGroup {
 
     private float mCurX, mCurY, mDownX, mDownY, mLastX, mLastY;
-    private float LAST_INPUT_RADIUS = 100;
-    private float MIN_FLICK_RADIUS = S.getInstance().minFlickRadius;
+
     private float UI_SIZE = S.getInstance().maxFlickRadius;
 
     private Paint paint = new Paint();
@@ -33,11 +36,12 @@ public class InputFieldView extends ViewGroup {
     private long lastAClickTime = 0;
 
     private long lastDownTime = 0;
-    private long longPressInterval = 1000;
 
     private boolean isMoving, isLastInput =false;
 
     public RingUIView ringUIView;
+
+    private boolean showGestureHistory =false;
 
     private enum keyPadType{
         J1,J2,M //j =자음, m = 모음
@@ -104,30 +108,156 @@ public class InputFieldView extends ViewGroup {
        printText(""+s);
     }
 
-    public void setLastInputRadius(float f){
-        LAST_INPUT_RADIUS = f;
-        Log.d("inputFiledView", String.format("last input radius : %f", LAST_INPUT_RADIUS));
+    private static class InputData{
+        float fromX;
+        float fromY;
+        float toX;
+        float toY;
+        GestureType type;
+
+        public static enum GestureType{
+            AClick,AFlick,Click,Flick
+        }
+
+        long time;
+        public InputData(float fromX, float fromY, float toX, float toY,GestureType type){
+            this.fromX = fromX;
+            this.fromY = fromY;
+            this.toX= toX;
+            this.toY = toY;
+            this.type = type;
+            time = System.currentTimeMillis();
+        }
     }
-    public void setMinFlickRadius(float f){
-        MIN_FLICK_RADIUS = f;
-        Log.d("inputFiledView", String.format("min flick radius : %f", MIN_FLICK_RADIUS));
-    }
+    List<InputData> gestureHistory = new LinkedList<>();
+    List<InputData> recentInputHistory = new LinkedList<>();
+    List<Float[]> lastInputHistory = new ArrayList<>();
 
 
-    public void setLastInput(float x, float y){
+    public void setLastInput(float x, float y ,
+                             boolean isInputFromA, boolean isFlick){
         Log.d("InputField", String.format("try to set last input to %f,%f", x, y));
-        if(S.getInstance().fixLastInput){
+
+        float totalX = 0;
+        float totalY = 0;
+        switch (S.getInstance().inputOption){
+            case Fixed:
+                if(mLastX == 0 && mLastY == 0){
+
+                    mLastX = x;
+                    mLastY = y;
+                    //Log.d("InputField", String.format("last input changed  to %f,%f", x, y));
+                }
+                break;
+            case Last:
+                mLastX = x;
+                mLastY = y;
+                break;
+            case AdaptAll:
+                //only gather data from Input converges to center
+
+                recentInputHistory.add(gestureHistory.get(gestureHistory.size() - 1));
+
+                while(true){
+                    if(recentInputHistory.size() > S.getInstance().adaptHistorySize){
+                        recentInputHistory.remove(0);
+                    }else{
+                        break;
+                    }
+                }
+
+                totalX  =0;
+                totalY = 0;
+                for( InputData inputData : recentInputHistory){
+                    if(inputData.type == InputData.GestureType.AFlick ){
+                        totalX += inputData.fromX;
+                        totalY += inputData.fromY;
+                    }else {
+                        totalX += inputData.toX;
+                        totalY += inputData.toY;
+                    }
+                }
+                mLastX = totalX/ recentInputHistory.size();
+                mLastY = totalY/ recentInputHistory.size();
+                break;
+            case AdaptConsonant:
+                //only gather data from Input converges to center
+                if(isInputFromA){
+                    break;
+                }
+
+                recentInputHistory.add(gestureHistory.get(gestureHistory.size() - 1));
+
+                while(true){
+                    if(recentInputHistory.size() > S.getInstance().adaptHistorySize){
+                        recentInputHistory.remove(0);
+                    }else{
+                        break;
+                    }
+                }
+                totalX  =0;
+                totalY = 0;
+                for( InputData inputData : recentInputHistory){
+                    if(inputData.type == InputData.GestureType.AFlick ){
+                        totalX += inputData.fromX;
+                        totalY += inputData.fromY;
+                    }else {
+                        totalX += inputData.toX;
+                        totalY += inputData.toY;
+                    }
+                }
+                mLastX = totalX/ recentInputHistory.size();
+                mLastY = totalY/ recentInputHistory.size();
+                break;
+            case AdaptVowel:
+                //only gather data from Input converges to center
+                if(recentInputHistory.isEmpty()){
+                    InputData recentInputData = gestureHistory.get(gestureHistory.size() - 1);
+                    recentInputHistory.add(recentInputData);
+                    //must me consonant
+                    mLastX = recentInputData.toX;
+                    mLastY = recentInputData.toY;
+                }
+                if(!isInputFromA && !recentInputHistory.isEmpty()){
+                    break;
+                }
+
+                recentInputHistory.add(gestureHistory.get(gestureHistory.size() - 1));
+
+                while(true){
+                    if(recentInputHistory.size() > S.getInstance().adaptHistorySize){
+                        recentInputHistory.remove(0);
+                    }else{
+                        break;
+                    }
+                }
+
+                totalX  =0;
+                totalY = 0;
+                for( InputData inputData : recentInputHistory){
+                    if(inputData.type == InputData.GestureType.AFlick ){
+                        totalX += inputData.fromX;
+                        totalY += inputData.fromY;
+                    }else {
+                        totalX += inputData.toX;
+                        totalY += inputData.toY;
+                    }
+                }
+                mLastX = totalX/ recentInputHistory.size();
+                mLastY = totalY/ recentInputHistory.size();
+                break;
+        }
+/*        if(S.getInstance().inputOption == S.InputOption.Fixed){
             if(mLastX == 0 && mLastY == 0){
                 mLastX = x;
                 mLastY = y;
                 Log.d("InputField", String.format("last input changed  to %f,%f", x, y));
             }
-        }else{
+        }else if(S.getInstance().inputOption.Last{
             mLastX = x;
             mLastY = y;
-        }
+        }*/
     }
-
 
 
     @Override
@@ -148,17 +278,16 @@ public class InputFieldView extends ViewGroup {
             case MotionEvent.ACTION_MOVE:
                 isMoving = true;
 
-                if(Math.sqrt(Math.pow(mDownX-x,2) + Math.pow(mDownY-y,2)) > MIN_FLICK_RADIUS){
+                if(Math.sqrt(Math.pow(mDownX-x,2) + Math.pow(mDownY-y,2)) > S.getInstance().minFlickRadius){
                 }else{
                     flick_valid = true;
-                    if(System.currentTimeMillis() - lastDownTime > longPressInterval){
+                    if(System.currentTimeMillis() - lastDownTime > S.getInstance().longPressInterval){
                         //force last position
                         mLastX = x;
                         mLastY =y;
                     }
                     flick_valid =false;
                 }
-
 
                 //Log.v("inputFiledView", "move");
                 invalidate();
@@ -175,25 +304,29 @@ public class InputFieldView extends ViewGroup {
                 //Log.d("inputFiledView", "down");
                 break;
             case MotionEvent.ACTION_UP:
-                if(isLastInput && Math.sqrt(Math.pow(mLastX-mDownX,2) + Math.pow(mLastY-mDownY,2)) < LAST_INPUT_RADIUS){
+                if(isLastInput && Math.sqrt(Math.pow(mLastX-mDownX,2) + Math.pow(mLastY-mDownY,2)) < S.getInstance().lastInputRadius){
                     // starting point == LastInputCircle
-                    if(Math.sqrt(Math.pow(mDownX-x,2) + Math.pow(mDownY-y,2)) > MIN_FLICK_RADIUS){
+                    if(Math.sqrt(Math.pow(mDownX-x,2) + Math.pow(mDownY-y,2)) > S.getInstance().minFlickRadius){
                         //AFlick
                         //printDirection("<font color='magenta'>Flick</font>");
                         Direction dir = getDirection4(mDownX, mDownY, x, y);
                         printDirection(String.format("<font color='magenta'>%s</font>,", dir.toString()));
                         printText(mapInputToKey(keyPadType.M, dir));
                         isLastInput = true;
-                        setLastInput(x,y);
+
+                        gestureHistory.add(new InputData(mDownX, mDownY, x, y, InputData.GestureType.AFlick));
+                        setLastInput(x,y,true,true);
                     }else{
                         //AClick
                         printDirection("<font color='magenta'>Click</font>");
                         printText(mapInputToKey(keyPadType.M, Direction.NON));
                         isLastInput = true;
-                        setLastInput(x,y);
+
+                        gestureHistory.add(new InputData(mDownX, mDownY, x, y, InputData.GestureType.AClick));
+                        setLastInput(x,y,true,false);
                     }
                 }else{
-                    if(Math.sqrt(Math.pow(mDownX-x,2) + Math.pow(mDownY-y,2)) > MIN_FLICK_RADIUS){
+                    if(Math.sqrt(Math.pow(mDownX-x,2) + Math.pow(mDownY-y,2)) > S.getInstance().minFlickRadius){
                         // normal flick end
                         Direction dir = getDirection(mDownX, mDownY, x, y);
                         if(dir != Direction.W) {
@@ -213,7 +346,9 @@ public class InputFieldView extends ViewGroup {
                             }
                         }
                         isLastInput = true;
-                        setLastInput(x,y);
+
+                        gestureHistory.add(new InputData(mDownX, mDownY, x, y, InputData.GestureType.Flick));
+                        setLastInput(x,y,false,true);
                     }else{
                         // normal click or press end
                         lastAClickTime = System.currentTimeMillis();
@@ -224,6 +359,9 @@ public class InputFieldView extends ViewGroup {
                     }
                 }
                 isMoving =false;
+
+                lastInputHistory.add(new Float[]{mLastX, mLastY});
+
                 invalidate();
                 break;
         }
@@ -233,12 +371,6 @@ public class InputFieldView extends ViewGroup {
 
         return true;
     }
-
-
-
-
-
-
 
     private char mapInputToKey(keyPadType k, Direction d){
         if(k == keyPadType.J1){
@@ -299,14 +431,143 @@ public class InputFieldView extends ViewGroup {
     private void drawGuide(Canvas canvas, int xOff, int yOff){
         if(isMoving) {
             canvas.drawLine(mDownX+xOff, mDownY+yOff, mCurX+xOff, mCurY+yOff, flick_valid ? last_paint : paint);
-            canvas.drawCircle(mDownX+xOff,mDownY+yOff,MIN_FLICK_RADIUS,flick_valid ? last_paint : paint);
+            canvas.drawCircle(mDownX+xOff,mDownY+yOff,S.getInstance().minFlickRadius,flick_valid ? last_paint : paint);
             for(Coord coord :UIPoints){
                 canvas.drawLine(mDownX+xOff, mDownY+yOff, mDownX+coord.x+xOff, mDownY+coord.y+yOff, keyPadState ==0 ?paint : keypad2Paint);
             }
         }
+    }
+
+
+
+    public void clearInputHistory(){
+        gestureHistory = new ArrayList<>();
+    }
+
+    private void drawTimeLastInputChangeGraph(Canvas canvas){
+        int startX = getWidth()/2;;
+        int startY = getWidth()/2;
+        int height = 100;
+        int width = 200;
+
+
+
+        boolean isFirst =true;
+        LinkedList<Double> distanceList = new LinkedList<>();
+        Float[] prev = {0f,0f};
+        Double distanceMax =0.0;
+        for(Float[] lastInput : lastInputHistory){
+            if(isFirst){
+                prev = lastInput;
+                continue;
+            }
+            double distance = Math.sqrt(Math.pow(lastInput[0] - prev[0], 2) + Math.pow(lastInput[1] - prev[1], 2));
+            distanceList.add(distance);
+            if(distance > distanceMax){
+                distanceMax = distance;
+            }
+        }
+
+        Double delta = (double)width/(double)distanceList.size();
+        Double currPos = (double)startX;
+        for(Double distance : distanceList){
+            //canvas.drawLine();
+            currPos+=delta;
+        }
+
 
     }
 
+    public void showVIPosHistorey(){
+        drawVIPosHistory = true;
+        invalidate();
+    }
+
+    //vowel input history
+    public boolean drawVIPosHistory = false;
+    private void drawVIPosHistory(Canvas canvas){
+        boolean first = true;
+        Paint linePaint = new Paint();
+        Paint circlePaint = new Paint();
+        circlePaint.set(last_paint);
+        circlePaint.setAlpha(20);
+        Float[] last= new Float[]{0f,0f};
+        for(Float[] position : lastInputHistory){
+            if(first){
+                first = false;
+                canvas.drawCircle(position[0], position[1],10, last_paint);
+                last = position;
+                continue;
+            }
+            canvas.drawLine(last[0], last[1], position[0], position[1], linePaint);
+            canvas.drawCircle(position[0], position[1],5, circlePaint);
+            last = position;
+        }
+    }
+
+
+    public void showGestureHistory(){
+        showGestureHistory = true;
+        invalidate();
+    }
+    private void drawTriangle(Canvas canvas, float x, float y, float sideLength, Paint paint ){
+        float a = sideLength/2;
+        float b = 1.73f/4 * sideLength;
+
+        float[] top = new float[]{x,y-b};
+        float[] left = new float[]{x-a,y+b};
+        float[] right = new float[]{x+a,y+b};
+
+        Paint.Style style = paint.getStyle();
+        paint.setStyle(Paint.Style.FILL_AND_STROKE);
+
+        Path path = new Path();
+        path.setFillType(Path.FillType.EVEN_ODD);
+        path.moveTo(left[0], left[1]);
+        path.lineTo(left[0], left[1]);
+        path.lineTo(right[0], right[1]);
+        path.lineTo(top[0], top[1]);
+        path.close();
+        canvas.drawPath(path, paint);
+
+        paint.setStyle(style);
+    }
+
+    private void drawGestureHistory(Canvas canvas) {
+        Paint currPaint = new Paint();
+        currPaint.setAlpha(20);
+
+        for (InputData inputData : gestureHistory) {
+
+            switch (inputData.type) {
+                case Flick:
+                    int color  = getDirection(inputData.fromX, inputData.fromY, inputData.toX, inputData.toY).ordinal() % 2 == 0 ? Color.RED : Color.BLUE;
+                    currPaint.setColor(color);
+                    canvas.drawCircle(inputData.fromX,inputData.fromY,5, currPaint);
+                    canvas.drawLine(inputData.fromX, inputData.fromY, inputData.toX, inputData.toY, currPaint);
+                    //canvas.drawCircle(inputData.toX,inputData.toY,5, currPaint);
+                    drawTriangle(canvas, inputData.toX, inputData.toY, 10, currPaint);
+                    break;
+                case Click:
+                    currPaint.setColor(Color.GREEN);
+                    canvas.drawCircle(inputData.toX,inputData.toY,5, currPaint);
+                    break;
+                case AFlick:
+                    currPaint.setColor(Color.GRAY);
+                    canvas.drawCircle(inputData.fromX,inputData.fromY,5, currPaint);
+                    canvas.drawLine(inputData.fromX, inputData.fromY, inputData.toX, inputData.toY, currPaint);
+                    //canvas.drawCircle(inputData.toX,inputData.toY,5, currPaint);
+                    drawTriangle(canvas, inputData.toX,inputData.toY,10, currPaint);
+                    break;
+                case AClick:
+                    currPaint.setColor(Color.BLACK);
+                    canvas.drawCircle(inputData.toX,inputData.toY,5, currPaint);
+                    break;
+            }
+
+
+        }
+    }
 
     @Override
     protected void onDraw(Canvas canvas) {
@@ -317,7 +578,17 @@ public class InputFieldView extends ViewGroup {
         drawGuide(canvas, -300,-300);
 
         if(isLastInput){
-            canvas.drawCircle(mLastX, mLastY, LAST_INPUT_RADIUS, last_paint);
+            canvas.drawCircle(mLastX, mLastY, S.getInstance().lastInputRadius, last_paint);
+        }
+
+        if(showGestureHistory){
+            showGestureHistory =false;
+            drawGestureHistory(canvas);
+        }
+
+        if(drawVIPosHistory){
+            drawVIPosHistory = false;
+            drawVIPosHistory(canvas);
         }
     }
 

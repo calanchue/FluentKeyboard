@@ -29,54 +29,47 @@ public class TextConverter {
         String retext;
 
         retext = text.replaceAll("ㄱㄱ", "ㄲ");
-
         retext = retext.replaceAll("ㄷㄷ", "ㄸ");
-
         retext = retext.replaceAll("ㅈㅈ", "ㅉ");
-
         retext = retext.replaceAll("ㅂㅂ", "ㅃ");
-
         retext = retext.replaceAll("ㅅㅅ", "ㅆ");
 
+       /* retext = retext.replaceAll("ㄱㅅ", "ㄳ");
+        retext = retext.replaceAll("ㄴㅈ", "ㄵ");
+        retext = retext.replaceAll("ㄴㅈ", "ㄵ");
+        retext = retext.replaceAll("ㄴㅎ", "ㄶ");
+        retext = retext.replaceAll("ㄹㄱ", "ㄺ");
+        retext = retext.replaceAll("ㄹㅁ", "ㄻ");
+        retext = retext.replaceAll("ㄹㅂ", "ㄼ");
+        retext = retext.replaceAll("ㄹㅅ", "ㄽ");
+        retext = retext.replaceAll("ㄹㅌ", "ㄾ");
+        retext = retext.replaceAll("ㄹㅍ", "ㄿ");
+        retext = retext.replaceAll("ㄹㅎ", "ㅀ");*/
+
         retext = retext.replaceAll("ㅣ·", "ㅏ");
-
         retext = retext.replaceAll("ㅏ·", "ㅑ");
-
         retext = retext.replaceAll("·ㅣ", "ㅓ");
-
         retext = retext.replaceAll("·ㅓ", "ㅕ");
-
         retext = retext.replaceAll("·ㅡ", "ㅗ");
-
         retext = retext.replaceAll("·ㅗ", "ㅛ");
-
         retext = retext.replaceAll("ㅡ·", "ㅜ");
-
         retext = retext.replaceAll("ㅜ·", "ㅠ");
 
         retext = retext.replaceAll("ㅏㅣ", "ㅐ");
-
         retext = retext.replaceAll("ㅑㅣ", "ㅒ");
-
         retext = retext.replaceAll("ㅓㅣ", "ㅔ");
-
         retext = retext.replaceAll("ㅕㅣ", "ㅖ");
-
         retext = retext.replaceAll("ㅗㅏ", "ㅘ");
-
         retext = retext.replaceAll("ㅗㅐ", "ㅙ");
-
         retext = retext.replaceAll("ㅗㅣ", "ㅚ");
-
         retext = retext.replaceAll("ㅜㅓ", "ㅝ");
-
         retext = retext.replaceAll("ㅜㅔ", "ㅞ");
-
         retext = retext.replaceAll("ㅜㅣ", "ㅟ");
-
         retext = retext.replaceAll("ㅡㅣ", "ㅢ");
-
         retext = retext.replaceAll("ㅡㅕ", "ㅝ");
+
+        retext = retext.replaceAll("··", ":");
+
 
         Log.v("converter", "retext"+retext);
 //	retext = retext.replaceAll("", "");
@@ -98,6 +91,10 @@ public class TextConverter {
             boolean k2 = l2.contains(letter);
             boolean k3 = l3.contains(letter);
 
+            if(!k1 && !k2 && !k3 ){
+                p_result.append(letter);
+            }
+
             boolean is_next_moeum = false;
             boolean is_next_jaum = false;
             if(i+1 < retext.length()) {
@@ -112,6 +109,7 @@ public class TextConverter {
                 Log.v("converter",String.format("k1 tmpNum=%d ,char=%c",tmp_num,(char)tmp_num));
                 // 중성
             } else if(k2) {
+
                 tmp_num += l2List.indexOf(letter)*28;
                 // 모음 다음에 자음이 오면 어절 종료 체크
                 if(!is_next_moeum) {

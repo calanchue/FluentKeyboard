@@ -22,7 +22,7 @@ public class AlphabetView extends TextView {
 
     public AlphabetView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        paint.setColor(Color.BLACK);
+        paint.setColor(Color.RED);
         paint.setStrokeWidth(6f);
         paint.setStrokeJoin(Paint.Join.ROUND);
         paint.setStyle(Paint.Style.STROKE);
@@ -81,7 +81,7 @@ public class AlphabetView extends TextView {
         super.onDraw(canvas);
         //Log.d("onDraw", String.format("%f %f : %f %f", mDownX,mDownY,mCurX, mCurY));
 
-        canvas.drawCircle(getWidth()/2, getHeight()/2 , 10, paint);
+        canvas.drawCircle(getWidth()/2, getHeight()/2 , 1, paint);
     }
 }
 

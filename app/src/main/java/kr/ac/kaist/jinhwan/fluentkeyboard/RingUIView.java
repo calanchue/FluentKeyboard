@@ -18,6 +18,8 @@ import java.util.LinkedList;
 public class RingUIView extends RelativeLayout implements OtherTouchListener {
 
     private String[] _keySet = {"<-", "ㅇ", "ㅈ", "ㅅ", "ㅂ", "ㄷ", "ㄴ", "ㄱ"};
+    private String[] _keySet2 = {"<-", "ㅁ", "ㅊ", "ㅎ", "ㅠ", "ㅌ", "ㄷ", "ㅋ"};
+
     private double UI_SIZE = 100;
 
     int centerX ;// = getX() + getWidth() / 2;
@@ -72,7 +74,7 @@ public class RingUIView extends RelativeLayout implements OtherTouchListener {
 
     public RingUIView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        paint.setColor(Color.BLACK);
+        paint.setColor(Color.RED);
         paint.setStrokeWidth(6f);
         paint.setStrokeJoin(Paint.Join.ROUND);
         paint.setStyle(Paint.Style.STROKE);
@@ -93,7 +95,9 @@ public class RingUIView extends RelativeLayout implements OtherTouchListener {
         }
     }
 
-
+    public void changeSet(){
+        
+    }
 
 
     @Override
@@ -101,13 +105,12 @@ public class RingUIView extends RelativeLayout implements OtherTouchListener {
         super.onDraw(canvas);
         //Log.d("onDraw", String.format("%f %f : %f %f", mDownX,mDownY,mCurX, mCurY));
 
-            canvas.drawCircle(getWidth()/2, getHeight()/2 , 10, paint);
-
+            canvas.drawCircle(getWidth()/2, getHeight()/2 , 1, paint);
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        return true; // this view is transparent for events.
+        return false; // this view is transparent for events.
     }
 
     @Override
@@ -169,104 +172,6 @@ public class RingUIView extends RelativeLayout implements OtherTouchListener {
                 break;
         }
 
-        /*switch (e.getAction()) {
-            case MotionEvent.ACTION_MOVE:
-                isMoving = true;
-                double flickLength = Math.sqrt(Math.pow(mDownX-x,2) + Math.pow(mDownY-y,2));
-                flick_valid = flickLength > MIN_FLICK_RADIUS;
-
-
-                if(flick_valid){
-                    Direction dir = Direction.getDirection(mDownX, mDownY, x, y);
-                    AlphabetView leaf = dirToLeaf.get(dir);
-                    float progress = Math.min((float)(flickLength/MAX_FLICK_RADIUS), 1f);
-                    if(currLeaf != leaf && currLeaf != null){
-                        currLeaf.recoverToOriginal();
-                    }
-                    currLeaf = leaf;
-
-                    int pX = (int)(progress * centerX + (1-progress) * leaf.getOriginalX());
-                    int  pY = (int)(progress * centerY + (1-progress) * leaf.getOriginalY());
-
-                    //Log.d("RingUI",String.format("move to x=%d, y=%d", (int)pX, (int)pY));
-                    leaf.moveToPositionByAnimation(pX, pY);
-
-
-                }else{
-                    if(currLeaf != null){
-                        currLeaf.recoverToOriginal();
-                    }
-                    currLeaf = null;
-                }
-                break;
-            case MotionEvent.ACTION_DOWN:
-                mDownX = x;
-                mDownY = y;
-                flick_valid = false;
-                //Log.d("inputFiledView", "down");
-                break;
-            case MotionEvent.ACTION_UP:
-                if(currLeaf != null){
-                    //currLeaf.recoverToOriginal();
-                    Log.d("RingUI", String.format("move, action up x=%d, y=%d", (int) centerX, (int) centerY));
-                    currLeaf.moveToPositionByAnimation((int)centerX, (int)centerY);
-                }
-                currLeaf =null;
-*//*
-                if(isLastInput && Math.sqrt(Math.pow(mLastX-mDownX,2) + Math.pow(mLastY-mDownY,2)) < LAST_INPUT_RADIUS){
-                    //is start point in LastInputCircle
-                    if(Math.sqrt(Math.pow(mDownX-x,2) + Math.pow(mDownY-y,2)) > MIN_FLICK_RADIUS){
-                        //printDirection("<font color='magenta'>Flick</font>");
-                        Direction dir = getDirection4(mDownX, mDownY, x, y);
-                        printDirection(String.format("<font color='magenta'>%s</font>,", dir.toString()));
-                        printText(mapInputToKey(keyPadType.M, dir));
-                        isLastInput = true;
-                        mLastX =x;
-                        mLastY = y;
-
-                    }else{
-                        printDirection("<font color='magenta'>Click</font>");
-                        printText(mapInputToKey(keyPadType.M, Direction.NON));
-                        isLastInput = true;
-                        mLastX =x;
-                        mLastY = y;
-                    }
-                }else{
-                    if(Math.sqrt(Math.pow(mDownX-x,2) + Math.pow(mDownY-y,2)) > MIN_FLICK_RADIUS){
-                        Direction dir = getDirection(mDownX, mDownY, x, y);
-                        if(dir != Direction.SE) {
-                            if (keyPadState == 0) {
-                                printText(mapInputToKey(keyPadType.J1, dir));
-                                printDirection(dir.toString());
-                            } else if (keyPadState == 1) {
-                                printText(mapInputToKey(keyPadType.J2, dir));
-                                printDirection(String.format("<font color='blue'>%s</font>,", dir.toString()));
-                            }
-                        }else if(dir == Direction.SE){
-                            if (keyPadState == 0){
-                                Log.d("inputfieldview", "bs");
-                                messageListener.listenMessage(MessageListener.Type.special, "bs");
-                            }else if (keyPadState == 1) {
-
-                            }
-                        }
-                        isLastInput = true;
-                        mLastX =x;
-                        mLastY = y;
-                    }else{
-                        printDirection("A_click ");
-                        keyPadState = ++keyPadState%MAX_KEY_PAD;
-                        lastAClick = System.currentTimeMillis();
-                        isLastInput = true;
-                    }
-                }
-
-                isMoving =false;
-                invalidate();*//*
-                break;
-        }*/
-
-        //Log.d("inputFiledView", String.format("%f %f : %f %f", mDownX,mDownY,mCurX, mCurY));
 
 
         return false;
