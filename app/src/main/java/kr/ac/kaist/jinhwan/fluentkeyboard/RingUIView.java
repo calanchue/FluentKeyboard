@@ -17,8 +17,13 @@ import java.util.LinkedList;
 
 public class RingUIView extends RelativeLayout implements OtherTouchListener {
 
+    public enum KeyMode{
+        V1, V2
+    }
+
+    private String[] _keySetERROR = {"-", "-", "-", "-", "-", "-", "-", "-"};
     private String[] _keySet = {"<-", "ㅇ", "ㅈ", "ㅅ", "ㅂ", "ㄷ", "ㄴ", "ㄱ"};
-    private String[] _keySet2 = {"<-", "ㅁ", "ㅊ", "ㅎ", "ㅠ", "ㅌ", "ㄷ", "ㅋ"};
+    private String[] _keySet2 = {"<-", "ㅁ", "ㅊ", "ㅎ", "ㅍ", "ㅌ", "ㄹ", "ㅋ"};
 
     private double UI_SIZE = 100;
 
@@ -101,8 +106,23 @@ public class RingUIView extends RelativeLayout implements OtherTouchListener {
         }
     }
 
-    public void changeSet(){
-        
+    public void changeSet(KeyMode keyMode){
+        int i = 0;
+        String[] currText;
+        switch(keyMode){
+            case V1:
+                currText = _keySet;
+                break;
+            case V2:
+                currText = _keySet2;
+                break;
+            default:
+                currText = _keySetERROR;
+        };
+        for(AlphabetView alphabetView : ringLeafList){
+            alphabetView.setText(currText[i]);
+            i++;
+        }
     }
 
 

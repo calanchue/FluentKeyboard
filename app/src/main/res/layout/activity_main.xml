@@ -68,7 +68,7 @@
                 android:id="@+id/rawTV"
                 android:textSize="@dimen/abc_text_size_large_material"
                 />
-         </HorizontalScrollView>
+        </HorizontalScrollView>
 
 
         <kr.ac.kaist.jinhwan.fluentkeyboard.SelectionWatchEditView

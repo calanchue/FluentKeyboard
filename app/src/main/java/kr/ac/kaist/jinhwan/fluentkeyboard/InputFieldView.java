@@ -326,8 +326,9 @@ public class InputFieldView extends ViewGroup {
                 break;
 
             case MotionEvent.ACTION_DOWN:
-                if(System.currentTimeMillis() - lastAClickTime > keyPadInterval){
-                    keyPadState = 0;
+                if(System.currentTimeMillis() - lastAClickTime < keyPadInterval){
+                    keyPadState = 1;
+                    ringUIView.changeSet(RingUIView.KeyMode.V2);
                 }
                 mDownX = x;
                 mDownY = y;
@@ -385,14 +386,16 @@ public class InputFieldView extends ViewGroup {
                         // normal click or press end
                         lastAClickTime = System.currentTimeMillis();
                         printDirection("A_click ");
-                        keyPadState = ++keyPadState % MAX_KEY_PAD;
+                        //keyPadState = ++keyPadState % MAX_KEY_PAD;
 
                         isLastInput = true;
                     }
                 }
                 isMoving =false;
-
                 lastInputHistory.add(new Float[]{mLastX, mLastY});
+
+                ringUIView.changeSet(RingUIView.KeyMode.V1);
+                keyPadState = 0;
 
                 invalidate();
                 break;
