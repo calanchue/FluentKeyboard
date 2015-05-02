@@ -3,6 +3,7 @@ package kr.ac.kaist.jinhwan.fluentkeyboard;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.widget.EditText;
 
 public class SelectionWatchEditView extends EditText{
@@ -24,6 +25,11 @@ public class SelectionWatchEditView extends EditText{
             Log.d("editText", "watcher not null. ready to call watcher");
             selectionWatcher.onSelectionChanged(selStart, selEnd);
         }
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        return false;
     }
 
     public static interface SelectionWatcher {

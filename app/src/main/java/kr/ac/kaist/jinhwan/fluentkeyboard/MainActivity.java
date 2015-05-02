@@ -9,6 +9,7 @@ import android.text.Editable;
 import android.text.Html;
 import android.text.Layout;
 import android.text.TextWatcher;
+import android.text.method.ScrollingMovementMethod;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
@@ -58,7 +59,10 @@ public class MainActivity extends ActionBarActivity implements MessageListener{
 
 
         rawView = (TextView)findViewById(R.id.rawTV);
-        rawView.addTextChangedListener( new TextWatcher() {
+        rawView.setMovementMethod(new ScrollingMovementMethod());
+
+        rawView.setText("");
+        rawView.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
@@ -71,10 +75,17 @@ public class MainActivity extends ActionBarActivity implements MessageListener{
 
             @Override
             public void afterTextChanged(Editable s) {
-                rawView.scrollTo(0, rawView.getRight());
+
+                final Layout layout = rawView.getLayout();
+                if(layout != null){
+                    int scrollDelta = layout.getLineBottom(rawView.getLineCount() - 1)
+                            - rawView.getScrollY() - rawView.getHeight();
+                    if(scrollDelta > 0)
+                        rawView.scrollBy(0, scrollDelta);
+                }
             }
         });
-        rawView.setText("");
+
         //convertedView = (TextView)findViewById(R.id.convertedTV);
 
         getWindow().setSoftInputMode(

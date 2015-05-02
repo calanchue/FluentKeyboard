@@ -36,6 +36,9 @@ public class FlowLayout extends ViewGroup{
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        if(this == null){
+            return;
+        }
         int childLeft = getPaddingLeft();
         int childTop = getPaddingTop();
         int lineHeight = 0;

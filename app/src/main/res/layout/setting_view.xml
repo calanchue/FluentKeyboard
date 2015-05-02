@@ -128,47 +128,7 @@ android:layout_height="match_parent"
         </TableRow>
     </TableLayout>
 
-    <kr.ac.kaist.jinhwan.fluentkeyboard.FlowLayout
-        android:orientation="horizontal"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content">
-        <Button
-            android:text="SAVE"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/saveSettingB"/>
-        <Button
-            android:text="LOAD"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/loadSettingB" />
 
-        <!--             <ImageView
-                         android:layout_width="150dp"
-                         android:layout_height="150dp"
-                         android:id="@+id/imageView"
-                         android:src="@drawable/capture"
-                         android:scaleType="fitCenter"
-                         android:layout_centerVertical="true"
-                         android:layout_toRightOf="@+id/ringUIView"
-                         android:layout_toEndOf="@+id/ringUIView" />-->
-        <Button
-            android:text="Gesture\nHistory"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/showInputGestureHistoryB" />
-
-        <Button
-            android:text="Vowel Input\nPos History"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/showVowelInputPositionHistoryB" />
-        <Button
-            android:text="RESET"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/resetB" />
-    </kr.ac.kaist.jinhwan.fluentkeyboard.FlowLayout>
 
     <View android:layout_width="fill_parent"
         android:layout_height="1dip"

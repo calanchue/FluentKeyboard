@@ -287,6 +287,7 @@ public class InputFieldView extends ViewGroup {
         }*/
     }
 
+    boolean outMinFlickRadius = false;
 
     @Override
     public boolean onTouchEvent(MotionEvent e) {
@@ -307,18 +308,21 @@ public class InputFieldView extends ViewGroup {
                 isMoving = true;
 
                 if(Math.sqrt(Math.pow(mDownX-x,2) + Math.pow(mDownY-y,2)) > S.getInstance().minFlickRadius){
+                    outMinFlickRadius = true;
                 }else{
-                    flick_valid = true;
-                    if(System.currentTimeMillis() - lastDownTime > S.getInstance().longPressInterval){
-                        //force last position
-                        recentInputHistory = new ArrayList<>();
-                        for(int  i = 0 ; i< S.getInstance().adaptHistorySize; i++){
-                            recentInputHistory.add(new InputData(x,y));
+                    if(outMinFlickRadius == false) {
+                        flick_valid = true;
+                        if (System.currentTimeMillis() - lastDownTime > S.getInstance().longPressInterval) {
+                            //force last position
+                            recentInputHistory = new ArrayList<>();
+                            for (int i = 0; i < S.getInstance().adaptHistorySize; i++) {
+                                recentInputHistory.add(new InputData(x, y));
+                            }
+                            mLastX = x;
+                            mLastY = y;
                         }
-                        mLastX = x;
-                        mLastY =y;
+                        flick_valid = false;
                     }
-                    flick_valid =false;
                 }
 
                 //Log.v("inputFiledView", "move");
@@ -334,6 +338,7 @@ public class InputFieldView extends ViewGroup {
                 mDownY = y;
                 flick_valid = false;
                 lastDownTime = System.currentTimeMillis();
+                outMinFlickRadius = false;
                 //Log.d("inputFiledView", "down");
                 break;
             case MotionEvent.ACTION_UP:
@@ -365,6 +370,8 @@ public class InputFieldView extends ViewGroup {
 
                         // Direction it started
                         Direction startDir  = getDirection4(mLastX, mLastY, mDownX, mDownY);
+
+
                         switch (startDir){
                             case N:
                                 break;

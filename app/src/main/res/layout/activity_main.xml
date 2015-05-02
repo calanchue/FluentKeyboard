@@ -25,7 +25,7 @@
 
 
         <LinearLayout
-            android:orientation="horizontal"
+            android:orientation="vertical"
             android:layout_width="wrap_content"
             android:layout_height="300dp"
             android:id="@+id/mainSettingContainer">
@@ -33,16 +33,57 @@
                 android:layout_width="300dp"
                 android:layout_height="fill_parent"
                 android:id="@+id/scrollView">
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content">
+                    <kr.ac.kaist.jinhwan.fluentkeyboard.FlowLayout
+                        android:orientation="horizontal"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content">
+                        <Button
+                            android:text="SAVE"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/saveSettingB"/>
+                        <Button
+                            android:text="LOAD"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/loadSettingB" />
+
+                        <!--             <ImageView
+                                         android:layout_width="150dp"
+                                         android:layout_height="150dp"
+                                         android:id="@+id/imageView"
+                                         android:src="@drawable/capture"
+                                         android:scaleType="fitCenter"
+                                         android:layout_centerVertical="true"
+                                         android:layout_toRightOf="@+id/ringUIView"
+                                         android:layout_toEndOf="@+id/ringUIView" />-->
+                        <Button
+                            android:text="Gesture\nHistory"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/showInputGestureHistoryB" />
+
+                        <Button
+                            android:text="Vowel Input\nPos History"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/showVowelInputPositionHistoryB" />
+                        <Button
+                            android:text="RESET"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/resetB" />
+                    </kr.ac.kaist.jinhwan.fluentkeyboard.FlowLayout>
+
                 <include
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     layout="@layout/setting_view" />
-            </ScrollView>
-            <ScrollView
-                android:layout_width="300dp"
-                android:layout_height="fill_parent"
-                >
-
+                </LinearLayout>
             </ScrollView>
 
         </LinearLayout>
@@ -58,17 +99,14 @@
             android:textSize="@dimen/abc_text_size_large_material"
             />
 
-        <HorizontalScrollView
-            android:layout_width="wrap_content"
+
+        <TextView android:text="rawTV" android:layout_width="wrap_content"
+            android:maxLines = "2"
+            android:scrollbars = "vertical"
             android:layout_height="wrap_content"
-            android:id="@+id/horizontalScrollView"
-            android:transcriptMode="alwaysScroll">
-            <TextView android:text="rawTV" android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/rawTV"
-                android:textSize="@dimen/abc_text_size_large_material"
-                />
-        </HorizontalScrollView>
+            android:id="@+id/rawTV"
+            android:textSize="@dimen/abc_text_size_large_material"
+            />
 
 
         <kr.ac.kaist.jinhwan.fluentkeyboard.SelectionWatchEditView
