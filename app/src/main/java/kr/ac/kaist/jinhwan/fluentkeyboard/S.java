@@ -16,9 +16,11 @@ import java.io.Serializable;
 public class S implements Serializable{
 
     private static DisplayMetrics metrics;
+    private float dpDensity;
 
     public void setDisplayMetrics(DisplayMetrics metrics){
         this.metrics = metrics;
+        dpDensity = metrics.density;
     }
 
     private float pxToMm(float pix){
@@ -27,6 +29,14 @@ public class S implements Serializable{
 
     private float mmToPx(float mm){
         return mm * metrics.xdpi * (1.0f/25.4f);
+    }
+
+    private float pxToDp(float pix){
+        return  pix / dpDensity;
+    }
+
+    private float dpToPx(float mm){
+        return mm * dpDensity;
     }
 
     public float getMinFlickRadius() {
@@ -54,11 +64,11 @@ public class S implements Serializable{
     }
 
     public float getLastInputRadius() {
-        return mmToPx(lastInputRadius);
+        return dpToPx(lastInputRadius);
     }
 
     public void setLastInputRadius(float lastInputRadius) {
-        this.lastInputRadius = pxToMm(lastInputRadius);
+        this.lastInputRadius = pxToDp(lastInputRadius);
     }
 
     public static enum InputOption {
@@ -113,6 +123,7 @@ public class S implements Serializable{
     public int adaptHistorySize = 10;
     public boolean hoverTrack = false;
     public boolean inDirFromStartPos = true; //false = Direction form movement Direction
+    public float ringUISize = 50;
 
 
     public static void makeDefaultSaveDirectory(){
