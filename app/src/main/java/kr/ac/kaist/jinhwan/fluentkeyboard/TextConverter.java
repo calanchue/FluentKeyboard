@@ -87,7 +87,12 @@ public class TextConverter {
             boolean k3 = l3.contains(letter);
 
             if(!k1 && !k2 && !k3 || letter == ' ' ){
+                if(tmp_num !=0){
+                    p_result.append((char)tmp_num);
+                    tmp_num =0;
+                }
                 p_result.append(letter);
+                continue;
             }
 
             boolean is_next_moeum = false;
@@ -129,7 +134,7 @@ public class TextConverter {
                         // 모음/자음/모음인 경우 여기가 어절의 끝
                         // 마지막 단어여도 어절 끝
                         // 다음 단어가 띄어쓰기여도 어절 끝
-                        if(is_next_next_moeum ||  !is_next_jaum && !is_next_moeum) {
+                        if(is_next_next_moeum ||  (!is_next_jaum && !is_next_moeum)) {
 
                             p_result.append( (char)tmp_num);
                             Log.v("converter",String.format("k2 tmpNum=%d ,char=%c",tmp_num,(char)tmp_num));
