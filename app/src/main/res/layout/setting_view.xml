@@ -5,133 +5,24 @@
 android:layout_width="match_parent"
 android:layout_height="match_parent"
     >
-    <TableLayout
-        android:layout_width="match_parent"
+    <include
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:stretchColumns="1">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="INPUT SETTING"
-            android:textSize="20dp"/>
-        <TableRow>
-            <TextView android:text="LastInput\nRadius"/>
-            <SeekBar
-                android:layout_height="wrap_content"
-                android:id="@+id/lastInputRadSB"
-                android:indeterminate="false" />
-        </TableRow>
-        <TableRow>
-            <TextView android:text="Min Flick\nRadius"/>
-            <SeekBar
-                android:id="@+id/minFlickRadSB"
-                android:indeterminate="false" />
-        </TableRow>
-        <TableRow>
-            <TextView
-                android:layout_gravity="fill"
-                android:text="InputPosition\nOption"/>
-            <RadioGroup
-                android:orientation="vertical"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/inputOptionRG">
-                <RadioButton
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="fixed"
-                    android:id="@+id/inputFixedRB"/>
-                <RadioButton
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="last"
-                    android:id="@+id/inputLastRB"/>
-                <RadioButton
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="adaptAll"
-                    android:id="@+id/inputAdaptAllRB"/>
-                <RadioButton
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="adaptConsonant"
-                    android:id="@+id/inputAdaptConsonantRB"/>
-                <RadioButton
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="adaptVowel"
-                    android:id="@+id/inputAdaptVowelRB"/>
-            </RadioGroup>
-        </TableRow>
-        <TableRow>
-            <TextView
-                android:layout_gravity="fill"
-                android:text="adaptHistorySize"/>
-            <NumberPicker
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/adaptSizeNP"/>
-        </TableRow>
-    </TableLayout>
-
+        layout="@layout/setting_input" />
 
     <View android:layout_width="fill_parent"
         android:layout_height="1dip"
         android:background="@android:color/black"/>
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="RING SETTING"
-        android:textSize="20dp"/>
-    <TableLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:stretchColumns="1">
-        <TableRow >
-            <TextView
-                android:layout_gravity="fill"
-                android:text="RingScale"/>
-            <SeekBar
-                android:id="@+id/ringScaleSB" />
-        </TableRow>
-        <TableRow >
-            <TextView
-                android:layout_gravity="fill"
-                android:text="offSet"/>
-            <LinearLayout android:orientation="horizontal"
-                android:layout_height="wrap_content"
-                android:layout_width="wrap_content">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="X"/>
-                <NumberPicker
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/ringOffSetX"/>
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Y"/>
-                <NumberPicker
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/ringOffSetY"/>
-            </LinearLayout>
-        </TableRow>
-        <TableRow >
-            <TextView
-                android:layout_gravity="fill"
-                android:text="hoverTrack"/>
-            <Switch
-                android:id="@+id/hoverTrackSW"/>
-        </TableRow>
-    </TableLayout>
 
-
+    <include
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        layout="@layout/setting_ring" />
 
     <View android:layout_width="fill_parent"
         android:layout_height="1dip"
         android:background="@android:color/black"/>
+
+
 
 </LinearLayout>

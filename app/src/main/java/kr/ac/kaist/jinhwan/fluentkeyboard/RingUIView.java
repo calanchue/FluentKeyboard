@@ -143,6 +143,25 @@ public class RingUIView extends RelativeLayout implements OtherTouchListener {
         canvas.drawLine(hoverX -length, hoverY ,hoverX +length, hoverY, paint );
         canvas.drawLine(hoverX, hoverY-length ,hoverX, hoverY+length, paint );
 
+  /*      if(!moveHistory.isEmpty()) {
+            while(moveHistory.size() < 10){
+                moveHistory.removeFirst();
+            }
+            paint.setColor(Color.BLACK);
+            Path path = new Path();
+            path.setFillType(Path.FillType.EVEN_ODD);
+            MoveData prevPoint = moveHistory.get(0);
+            path.moveTo(prevPoint.x, prevPoint.y);
+            Paint currPaint = paint;
+            float radius = S.getInstance().lastInputRadius;
+            float transPro = VIUISize/radius;
+
+            for (MoveData input : moveHistory) {
+                canvas.drawLine(prevPoint.x * transPro + getWidth()/2, prevPoint.y, input.x, input.y, currPaint);
+                prevPoint = input;
+            }
+        }*/
+
     }
 
     @Override
@@ -153,10 +172,10 @@ public class RingUIView extends RelativeLayout implements OtherTouchListener {
 
     public void OnHoverOnVI(MotionEvent event ,float VIX, float VIY){
         float VIUISize = VIUIPro * getHeight();
-        float radius = S.getInstance().lastInputRadius;
+        float radius = S.getInstance().getLastInputRadius();
         float transPro = VIUISize/radius;
 
-        hoverIn = Math.sqrt(Math.pow(event.getX()-VIX, 2) + Math.pow(event.getY()-VIY, 2)) < S.getInstance().lastInputRadius;
+        hoverIn = Math.sqrt(Math.pow(event.getX()-VIX, 2) + Math.pow(event.getY()-VIY, 2)) < S.getInstance().getLastInputRadius();
 
         hoverX = (event.getX() - VIX) * transPro + getWidth()/2;
         hoverY = (event.getY() - VIY )* transPro + getHeight()/2;
@@ -164,9 +183,46 @@ public class RingUIView extends RelativeLayout implements OtherTouchListener {
         invalidate();
     }
 
+    private boolean fixMovement = false;
+    public void fixMovement(){
+        fixMovement = true;
+        for(AlphabetView av : ringLeafList){
+            if(av != currLeaf){
+                av.recoverToOriginal();
+            }else{
+                currLeaf.select();
+                int pX = (int) ((centerX - currLeaf.getWidth() / 2) );
+                int pY = (int) ((centerY - currLeaf.getHeight() / 2));
+                currLeaf.moveToPositionByAnimation(pX, pY);
+            }
+        }
+    }
+    public void releaseMovement(){
+        fixMovement = false;
+        for(AlphabetView av : ringLeafList){
+             av.recoverToOriginal();
+        }
+    }
+
+
+    private class MoveData{
+        float x,y;
+        long inputTime;
+        MoveData(float x, float y, long inputTime){
+            this.x = x;
+            this.y = y;
+            this.inputTime =inputTime;
+        }
+    }
+
+    LinkedList<MoveData> moveHistory = new LinkedList<>();
 
     @Override
     public boolean otherOnTouchEvent(MotionEvent e) {
+        if(fixMovement){
+            return false;
+        }
+
         Log.v("RingUI", "otherOnTouchEvent");
         float x = e.getX();
         float y = e.getY();
@@ -177,15 +233,28 @@ public class RingUIView extends RelativeLayout implements OtherTouchListener {
         isMoving = false;
 
         switch (e.getAction()) {
+
+            case MotionEvent.ACTION_DOWN:
+                moveHistory = new LinkedList<>();
+                moveHistory.add(new MoveData(mCurX, mCurY, System.currentTimeMillis()));
+
+                mDownX = x;
+                mDownY = y;
+                flick_valid = false;
+
+                //Log.d("inputFiledView", "down");
+                break;
             case MotionEvent.ACTION_MOVE:
+                moveHistory.add(new MoveData(mCurX, mCurY, System.currentTimeMillis()));
+
                 isMoving = true;
                 double flickLength = Math.sqrt(Math.pow(mDownX-x,2) + Math.pow(mDownY-y,2));
-                flick_valid = flickLength > S.getInstance().minFlickRadius;
+                flick_valid = flickLength > S.getInstance().getMinFlickRadius();
 
                 if(flick_valid) {
                     Direction dir = Direction.getOpposite(Direction.getDirection(mDownX, mDownY, x, y));
                     AlphabetView leaf = dirToLeaf.get(dir);
-                    float progress = Math.min((float) (flickLength / S.getInstance().maxFlickRadius), 1f);
+                    float progress = Math.min((float) (flickLength / S.getInstance().getMaxFlickRadius()), 1f);
                     if (currLeaf != leaf && currLeaf != null) {
                         currLeaf.recoverToOriginal();
                     }
@@ -194,7 +263,7 @@ public class RingUIView extends RelativeLayout implements OtherTouchListener {
                     int pX = (int) (progress * (centerX - leaf.getWidth() / 2) + (1 - progress) * leaf.getOriginalX());
                     int pY = (int) (progress * (centerY - leaf.getHeight() / 2) + (1 - progress) * leaf.getOriginalY());
 
-                    if(flickLength > S.getInstance().validFlickRadius){
+                    if(flickLength > S.getInstance().getValidFlickRadius()){
                         currLeaf.select();
                     }
 
@@ -207,13 +276,6 @@ public class RingUIView extends RelativeLayout implements OtherTouchListener {
                     currLeaf = null;
                 }
 
-                break;
-            case MotionEvent.ACTION_DOWN:
-                mDownX = x;
-                mDownY = y;
-                flick_valid = false;
-
-                //Log.d("inputFiledView", "down");
                 break;
             case MotionEvent.ACTION_UP:
                 if(currLeaf != null){

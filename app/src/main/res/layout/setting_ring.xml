@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:stretchColumns="1">
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="RING SETTING"
+        android:textSize="20dp"/>
+    <TableRow >
+        <TextView
+            android:layout_gravity="fill"
+            android:text="RingScale"/>
+        <SeekBar
+            android:id="@+id/ringScaleSB" />
+    </TableRow>
+    <TableRow >
+        <TextView
+            android:layout_gravity="fill"
+            android:text="offSet"/>
+        <LinearLayout android:orientation="horizontal"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="X"/>
+            <NumberPicker
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/ringOffSetX"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Y"/>
+            <NumberPicker
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/ringOffSetY"/>
+        </LinearLayout>
+    </TableRow>
+    <TableRow >
+        <TextView
+            android:layout_gravity="fill"
+            android:text="hoverTrack"/>
+        <Switch
+            android:id="@+id/hoverTrackSW"/>
+    </TableRow>
+</TableLayout>

@@ -18,8 +18,6 @@ public class TextConverter {
     static List<Character> l3List = Arrays.asList(' ', 'ㄱ', 'ㄲ', 'ㄳ', 'ㄴ', 'ㄵ', 'ㄶ', 'ㄷ', 'ㄹ', 'ㄺ', 'ㄻ', 'ㄼ', 'ㄽ', 'ㄾ', 'ㄿ', 'ㅀ', 'ㅁ', 'ㅂ', 'ㅄ', 'ㅅ', 'ㅆ', 'ㅇ', 'ㅈ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ');
     static Set<Character> l3 = new HashSet<>(l3List);
 
-
-
     public static String convertRaw(String text){
         Log.d("ASDF", String.format("%b",l2.contains("ㅣ")));
         Log.v("converter", "input="+text);
@@ -30,8 +28,8 @@ public class TextConverter {
         retext = retext.replaceAll("ㅈㅈ", "ㅉ");
         retext = retext.replaceAll("ㅂㅂ", "ㅃ");
         retext = retext.replaceAll("ㅅㅅ", "ㅆ");
-
-       /* retext = retext.replaceAll("ㄱㅅ", "ㄳ");
+/*
+        retext = retext.replaceAll("ㄱㅅ", "ㄳ");
         retext = retext.replaceAll("ㄴㅈ", "ㄵ");
         retext = retext.replaceAll("ㄴㅈ", "ㄵ");
         retext = retext.replaceAll("ㄴㅎ", "ㄶ");
@@ -102,40 +100,82 @@ public class TextConverter {
             Log.d("converter", String.format("c=%c,%x i=%d k1=%b, k2=%b, k3=%b, moeum=%b, jaum=%b",letter,(int)letter,i,k1,k2,k3,is_next_moeum,is_next_jaum));
             // 초성 (다음에 모음이 오면 초성임)
             if(k1 && is_next_moeum) {
+
                 tmp_num =0xAC00 + 28 * 21*l1List.indexOf(letter);
                 Log.v("converter",String.format("k1 tmpNum=%d ,char=%c",tmp_num,(char)tmp_num));
                 // 중성
             } else if(k2) {
 
                 tmp_num += l2List.indexOf(letter)*28;
+
+                boolean prev_moeum = false;
+                if(i-1 >= 0 ) {
+                    prev_moeum = l2.contains(retext.charAt(i - 1));
+                }
                 // 모음 다음에 자음이 오면 어절 종료 체크
                 if(!is_next_moeum) {
+
                     boolean is_next_next_moeum = false;
                     if(i+2 < retext.length()) {
                         is_next_next_moeum = l2.contains(retext.charAt(i + 2));
                     }
-                    // 모음/자음/모음인 경우 여기가 어절의 끝
-                    // 마지막 단어여도 어절 끝
-                    // 다음 단어가 띄어쓰기여도 어절 끝
-                    if(is_next_next_moeum || i+1==retext.length() || retext.charAt(i+1)==' ') {
 
-                        p_result.append( (char)tmp_num);
-                        Log.v("converter",String.format("k2 tmpNum=%d ,char=%c",tmp_num,(char)tmp_num));
+                    if(prev_moeum && !is_next_jaum && !is_next_moeum){
+                        p_result.append(letter);
+                        tmp_num = 0;
+                    }else{
+
+
+                        // 모음/자음/모음인 경우 여기가 어절의 끝
+                        // 마지막 단어여도 어절 끝
+                        // 다음 단어가 띄어쓰기여도 어절 끝
+                        if(is_next_next_moeum ||  !is_next_jaum && !is_next_moeum) {
+
+                            p_result.append( (char)tmp_num);
+                            Log.v("converter",String.format("k2 tmpNum=%d ,char=%c",tmp_num,(char)tmp_num));
+                            tmp_num = 0;
+                        }
+                    }
+                }else{// 모음 다음 모음. 완성 + 단모음 표시
+                    boolean prev_j = false;
+                    if(i-1 >= 0 ) {
+                        prev_j = l1.contains(retext.charAt(i - 1));
+                    }
+                    if(prev_j) {
+                        p_result.append((char) tmp_num);
+                        tmp_num = 0;
+                    }else{
+                        p_result.append(letter);
                         tmp_num = 0;
                     }
                 }
                 // 종성 (다음에 자음이 오면 종성임)
             } else if(k3 && !is_next_moeum) {
                 tmp_num += l3List.indexOf(letter);
+                boolean prev_moeum = false;
+                if(i-1 >= 0 ) {
+                    prev_moeum = l2.contains(retext.charAt(i - 1));
+                }
+
                 // 종성 다음에 자음이 오면 어절의 종료
-                if(!is_next_moeum || i+1==retext.length()) {
-                    if(tmp_num < 0xAC00){
-                        p_result.append(letter);
-                        Log.v("converter",String.format("k3 char=%c",letter));
-                    }else {
-                        p_result.append((char) tmp_num);
-                        Log.v("converter",String.format("k3 tmpNum=%d ,char=%c",tmp_num,(char)tmp_num));
+                if((!is_next_moeum || i+1==retext.length()) && prev_moeum) {
+                    boolean is_next2_moeum = false;
+                    if(i+2 < retext.length()) {
+                        is_next2_moeum = l2.contains(retext.charAt(i + 2));
                     }
+
+
+                    if (tmp_num < 0xAC00) {
+                        p_result.append(letter);
+                        Log.v("converter", String.format("k3 char=%c", letter));
+                    } else {
+                        p_result.append((char) tmp_num);
+                        Log.v("converter", String.format("k3 tmpNum=%d ,char=%c", tmp_num, (char) tmp_num));
+                    }
+
+                    tmp_num = 0;
+                }else if( !prev_moeum && (!is_next_moeum || i+1 == retext.length() ) ){
+                    p_result.append(letter);
                     tmp_num = 0;
                 }
             } else {

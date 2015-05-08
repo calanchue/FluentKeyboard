@@ -25,14 +25,16 @@
 
 
         <LinearLayout
-            android:orientation="vertical"
             android:layout_width="wrap_content"
             android:layout_height="300dp"
-            android:id="@+id/mainSettingContainer">
+            android:id="@+id/mainSettingContainer"
+            android:orientation="vertical">
             <ScrollView
                 android:layout_width="300dp"
                 android:layout_height="fill_parent"
-                android:id="@+id/scrollView">
+                android:id="@+id/scrollView"
+                android:layout_weight="1">
+
                 <LinearLayout
                     android:orientation="vertical"
                     android:layout_width="fill_parent"
@@ -61,6 +63,14 @@
                                          android:layout_centerVertical="true"
                                          android:layout_toRightOf="@+id/ringUIView"
                                          android:layout_toEndOf="@+id/ringUIView" />-->
+
+                        <Button
+                            android:text="RESET"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/resetB" />
+
+
                         <Button
                             android:text="Gesture\nHistory"
                             android:layout_width="wrap_content"
@@ -73,16 +83,31 @@
                             android:layout_height="wrap_content"
                             android:id="@+id/showVowelInputPositionHistoryB" />
                         <Button
-                            android:text="RESET"
+                            android:text="SAVE HISTORY"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:id="@+id/resetB" />
+                            android:id="@+id/saveHistoryB"/>
+                        <Button
+                            android:text="LOAD HISTORY"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/loadHistoryB" />
                     </kr.ac.kaist.jinhwan.fluentkeyboard.FlowLayout>
 
-                <include
+                    <include
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     layout="@layout/setting_view" />
+
+                        <kr.ac.kaist.jinhwan.fluentkeyboard.FlowLayout
+                            android:orientation="horizontal"
+                            android:layout_width="fill_parent"
+                            android:layout_height="100dp">
+
+
+                        </kr.ac.kaist.jinhwan.fluentkeyboard.FlowLayout>
+
+
                 </LinearLayout>
             </ScrollView>
 
@@ -115,6 +140,8 @@
             android:id="@+id/selectionWatchET"
             android:layout_marginLeft="50dp"
              />
+
+
     </LinearLayout>
 
 
@@ -122,7 +149,6 @@
         android:layout_width="250dp"
         android:layout_height="250dp"
         android:id="@+id/ringUIView"
-        android:background="@drawable/ring_ui_design"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
 

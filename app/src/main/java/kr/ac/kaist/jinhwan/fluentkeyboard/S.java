@@ -2,6 +2,7 @@ package kr.ac.kaist.jinhwan.fluentkeyboard;
 
 
 import android.os.Environment;
+import android.util.DisplayMetrics;
 import android.util.Log;
 
 import java.io.File;
@@ -13,6 +14,53 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
 public class S implements Serializable{
+
+    private static DisplayMetrics metrics;
+
+    public void setDisplayMetrics(DisplayMetrics metrics){
+        this.metrics = metrics;
+    }
+
+    private float pxToMm(float pix){
+        return  pix / metrics.xdpi * 25.4f;
+    }
+
+    private float mmToPx(float mm){
+        return mm * metrics.xdpi * (1.0f/25.4f);
+    }
+
+    public float getMinFlickRadius() {
+        return mmToPx(minFlickRadius);
+    }
+
+    public void setMinFlickRadius(float minFlickRadius) {
+        this.minFlickRadius = pxToMm(minFlickRadius);
+    }
+
+    public float getMaxFlickRadius() {
+        return mmToPx(maxFlickRadius);
+    }
+
+    public void setMaxFlickRadius(float maxFlickRadius) {
+        this.maxFlickRadius = pxToMm(maxFlickRadius);
+    }
+
+    public float getValidFlickRadius() {
+        return mmToPx(validFlickRadius);
+    }
+
+    public void setValidFlickRadius(float validFlickRadius) {
+        this.validFlickRadius = pxToMm(validFlickRadius);
+    }
+
+    public float getLastInputRadius() {
+        return mmToPx(lastInputRadius);
+    }
+
+    public void setLastInputRadius(float lastInputRadius) {
+        this.lastInputRadius = pxToMm(lastInputRadius);
+    }
+
     public static enum InputOption {
         Fixed(R.id.inputFixedRB),Last(R.id.inputLastRB),
         AdaptAll(R.id.inputAdaptAllRB),AdaptConsonant(R.id.inputAdaptConsonantRB),
@@ -52,18 +100,19 @@ public class S implements Serializable{
     public float selectSize = 2.0f;
     public long recoverDuration = 500;
     public float selectAlpha = 1.0f;
-    public float minFlickRadius = 50;
-    public float maxFlickRadius = 100;
-    public float validFlickRadius = maxFlickRadius*9/10;
+    private float minFlickRadius = 5;
+    private float maxFlickRadius = 10;
+    private float validFlickRadius = maxFlickRadius *9/10;
     //public boolean fixLastInput = true;
     public float ringScale=1f;
     public int ringOffX=0;
     public int ringOffY=0;
-    public float lastInputRadius = 100f;
+    private float lastInputRadius = 10;
     public float longPressInterval = 500;
     public InputOption inputOption = InputOption.Fixed;
     public int adaptHistorySize = 10;
     public boolean hoverTrack = false;
+    public boolean inDirFromStartPos = true; //false = Direction form movement Direction
 
 
     public static void makeDefaultSaveDirectory(){
@@ -74,17 +123,6 @@ public class S implements Serializable{
     }
 
     public boolean save(String file_path){
-/*        File file = new File(file_path);
-        Log.i( TAG , "!file.exists" );
-        try {
-            isSuccess = file.createNewFile();
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
-        } finally{
-            Log.i(TAG, "파일생성 여부 = " + isSuccess);
-        }*/
-
         try{
             FileOutputStream fos =
                     new FileOutputStream(file_path);
@@ -123,7 +161,7 @@ public class S implements Serializable{
         return true;
     }
 
-    private static File makeDirectory(String dir_path){
+    public static File makeDirectory(String dir_path){
         File dir = new File(dir_path);
         if (!dir.exists())
         {
@@ -135,5 +173,7 @@ public class S implements Serializable{
 
         return dir;
     }
+
+
 
 }

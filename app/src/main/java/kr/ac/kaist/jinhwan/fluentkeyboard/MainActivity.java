@@ -10,7 +10,6 @@ import android.text.Html;
 import android.text.Layout;
 import android.text.TextWatcher;
 import android.text.method.ScrollingMovementMethod;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -42,12 +41,26 @@ public class MainActivity extends ActionBarActivity implements MessageListener{
     RingUIView ringUIView;
     InputFieldView inputFieldView;
 
+
+    private final static String HISTORY_SAVE_PATH = "/HISTORY";
     private final static String  MAIN_SETTING_HEIGHT_KEY = "mainSettingHeight";
+    private final static String LAST_S_PATH_KEY = "last_s_path_key";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         settings = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+
+
+
+        String last_s_path = settings.getString(LAST_S_PATH_KEY,null);
+        if(last_s_path != null){
+            S.load(last_s_path);
+            Toast.makeText(MainActivity.this, "LOAD: " +
+                    last_s_path, Toast.LENGTH_LONG).show();
+        }
+
+        S.getInstance().setDisplayMetrics(getResources().getDisplayMetrics());
+
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -151,7 +164,11 @@ public class MainActivity extends ActionBarActivity implements MessageListener{
                                 m_chosen = chosenDir;
                                 S.getInstance().save(chosenDir);
                                 Toast.makeText(MainActivity.this, "SAVE: " +
-                                        m_chosen, Toast.LENGTH_LONG).show();
+                                m_chosen, Toast.LENGTH_LONG).show();
+
+                                SharedPreferences.Editor editor = settings.edit();
+                                editor.putString(LAST_S_PATH_KEY, m_chosen);
+                                editor.commit();
                             }
                         });
 
@@ -179,6 +196,10 @@ public class MainActivity extends ActionBarActivity implements MessageListener{
                                 Toast.makeText(MainActivity.this, "LOAD: " +
                                         m_chosen, Toast.LENGTH_LONG).show();
                                 MainActivity.this.recreate();
+
+                                SharedPreferences.Editor editor = settings.edit();
+                                editor.putString(LAST_S_PATH_KEY,  m_chosen);
+                                editor.commit();
                             }
                         });
 
@@ -211,11 +232,18 @@ public class MainActivity extends ActionBarActivity implements MessageListener{
             }
         });
 
-        LinearLayout mainContainer = (LinearLayout) findViewById(R.id.mainSettingContainer);
-        DisplayMetrics metrics = getResources().getDisplayMetrics();
-        mainContainer.getLayoutParams().height = settings.getInt(MAIN_SETTING_HEIGHT_KEY , (int)(300 * metrics.density + 0.5f));
+        final LinearLayout mainContainer = (LinearLayout) findViewById(R.id.mainSettingContainer);
+        if(settings.getInt(MAIN_SETTING_HEIGHT_KEY ,400) > 400){
+            SharedPreferences.Editor editor = settings.edit();
+            editor.putInt(MAIN_SETTING_HEIGHT_KEY,  400);
+            editor.commit();
+        }
+        mainContainer.getLayoutParams().height = settings.getInt(MAIN_SETTING_HEIGHT_KEY , 400);
 
+
+        mainContainer.setVisibility(View.GONE);
         final View mainSettingHeightBar = (View)findViewById(R.id.mainSettingHeightBar);
+
         mainSettingHeightBar.setOnTouchListener(new View.OnTouchListener() {
 
             float mLastX = 0;
@@ -223,7 +251,7 @@ public class MainActivity extends ActionBarActivity implements MessageListener{
             int originalHeight = 0;
 
             @Override
-            public boolean onTouch(View v, MotionEvent ev) {
+                public boolean onTouch(View v, MotionEvent ev) {
                 LinearLayout mainContainer = (LinearLayout) findViewById(R.id.mainSettingContainer);
 
                 int mActivePointerId;
@@ -257,10 +285,21 @@ public class MainActivity extends ActionBarActivity implements MessageListener{
 
                     }
                     case MotionEvent.ACTION_UP: {
-                        mainSettingHeightBar.setBackgroundColor(Color.BLACK);
-                        SharedPreferences.Editor editor = settings.edit();
-                        editor.putInt(MAIN_SETTING_HEIGHT_KEY,  mainContainer.getLayoutParams().height);
-                        editor.commit();
+                        if(mainContainer.getVisibility() == View.VISIBLE){
+                            mainSettingHeightBar.setBackgroundColor(Color.BLACK);
+                            SharedPreferences.Editor editor = settings.edit();
+                            editor.putInt(MAIN_SETTING_HEIGHT_KEY,  mainContainer.getLayoutParams().height);
+                            editor.commit();
+                        }
+
+                        if(Math.sqrt(Math.pow(y-mLastY,2.0) + Math.pow(x-mLastX,2.0)) < 20){
+                            if(mainContainer.getVisibility() != View.GONE) {
+                                mainContainer.setVisibility(View.GONE);
+                            }else{
+                                mainContainer.setVisibility(View.VISIBLE);
+                                mainContainer.getLayoutParams().height = settings.getInt(MAIN_SETTING_HEIGHT_KEY , 400);
+                            }
+                        }
 
                         break;
                     }
@@ -269,18 +308,68 @@ public class MainActivity extends ActionBarActivity implements MessageListener{
             }
         });
 
+        final String defHisDir =  S.getDefaultSaveDirPath() + HISTORY_SAVE_PATH;
+        Button saveHisB = (Button)findViewById(R.id.saveHistoryB);
+        saveHisB.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SimpleFileDialog FileSaveDialog =  new SimpleFileDialog(MainActivity.this, "FileSave",
+                        new SimpleFileDialog.SimpleFileDialogListener()
+                        {
+                            String m_chosen;
+                            @Override
+                            public void onChosenDir(String chosenDir)
+                            {
+                                // The code in this function will be executed when the dialog OK button is pushed
+                                m_chosen = chosenDir;
+                                inputFieldView.saveInputHistory(m_chosen);
+                                Toast.makeText(MainActivity.this, "SAVE: " +
+                                        m_chosen, Toast.LENGTH_LONG).show();
+                            }
+                        });
 
+                //You can change the default filename using the public variable "Default_File_Name"
+                S.makeDirectory(defHisDir);
+                FileSaveDialog.Default_File_Name = "FKB_History";
+                FileSaveDialog.chooseFile_or_Dir(defHisDir);
+
+            }
+        });
+        Button loadHisB = (Button)findViewById(R.id.loadHistoryB);
+        loadHisB.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SimpleFileDialog FileOpenDialog =  new SimpleFileDialog(MainActivity.this, "FileOpen",
+                        new SimpleFileDialog.SimpleFileDialogListener()
+                        {
+                            String m_chosen;
+                            @Override
+                            public void onChosenDir(String chosenDir)
+                            {
+                                // The code in this function will be executed when the dialog OK button is pushed
+                                m_chosen = chosenDir;
+                                inputFieldView.loadInputHistory(m_chosen);
+                                Toast.makeText(MainActivity.this, "LOAD: " +
+                                        m_chosen, Toast.LENGTH_LONG).show();
+                            }
+                        });
+
+                FileOpenDialog.Default_File_Name = "";
+                S.makeDirectory(defHisDir);
+                FileOpenDialog.chooseFile_or_Dir(defHisDir);
+            }
+        });
     }
 
 
 
     private void onCreateOption(){
         SeekBar sb1 = (SeekBar)findViewById(R.id.lastInputRadSB);
-        sb1.setProgress((int)S.getInstance().lastInputRadius-20);
+        sb1.setProgress((int) S.getInstance().getLastInputRadius() -50);
         sb1.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                S.getInstance().lastInputRadius = progress + 20;
+                S.getInstance().setLastInputRadius(progress + 50);
             }
 
             @Override
@@ -294,11 +383,11 @@ public class MainActivity extends ActionBarActivity implements MessageListener{
         });
 
         SeekBar sb2 = (SeekBar)findViewById(R.id.minFlickRadSB);
-        sb2.setProgress((int)S.getInstance().minFlickRadius-20);
+        sb2.setProgress((int) S.getInstance().getMinFlickRadius() -20);
         sb2.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                S.getInstance().minFlickRadius = progress+20;
+                S.getInstance().setMinFlickRadius(progress+20);
             }
 
             @Override
@@ -409,6 +498,15 @@ public class MainActivity extends ActionBarActivity implements MessageListener{
             @Override
             public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
                 S.getInstance().adaptHistorySize = newVal;
+            }
+        });
+
+        Switch inDirFromStartPos = (Switch)findViewById(R.id.inDirFromStartPosSW);
+        inDirFromStartPos.setChecked(S.getInstance().inDirFromStartPos);
+        inDirFromStartPos.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                S.getInstance().inDirFromStartPos = isChecked;
             }
         });
     }

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:stretchColumns="1">
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="INPUT SETTING"
+        android:textSize="20dp"/>
+    <TableRow>
+        <TextView android:text="LastInput\nRadius"/>
+        <SeekBar
+            android:layout_height="wrap_content"
+            android:id="@+id/lastInputRadSB"
+            android:indeterminate="false"
+            android:max="200"/>
+    </TableRow>
+    <TableRow>
+        <TextView android:text="Min Flick\nRadius"/>
+        <SeekBar
+            android:id="@+id/minFlickRadSB"
+            android:indeterminate="false" />
+    </TableRow>
+    <TableRow>
+        <TextView
+            android:layout_gravity="fill"
+            android:text="InputPosition\nOption"/>
+        <RadioGroup
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/inputOptionRG">
+            <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="fixed"
+                android:id="@+id/inputFixedRB"/>
+            <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="last"
+                android:id="@+id/inputLastRB"/>
+            <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="adaptAll"
+                android:id="@+id/inputAdaptAllRB"/>
+            <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="adaptConsonant"
+                android:id="@+id/inputAdaptConsonantRB"/>
+            <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="adaptVowel"
+                android:id="@+id/inputAdaptVowelRB"/>
+        </RadioGroup>
+    </TableRow>
+    <TableRow>
+        <TextView
+            android:layout_gravity="fill"
+            android:text="adaptHistorySize"/>
+        <NumberPicker
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/adaptSizeNP"/>
+    </TableRow>
+    <TableRow>
+        <TextView
+            android:layout_gravity="fill"
+            android:text="inDirFromStartPos"/>
+            <Switch
+                android:id="@+id/inDirFromStartPosSW"/>
+
+    </TableRow>
+
+
+</TableLayout>
