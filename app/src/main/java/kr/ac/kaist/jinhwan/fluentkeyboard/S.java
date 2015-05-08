@@ -23,19 +23,19 @@ public class S implements Serializable{
         dpDensity = metrics.density;
     }
 
-    private float pxToMm(float pix){
+    public float pxToMm(float pix){
         return  pix / metrics.xdpi * 25.4f;
     }
 
-    private float mmToPx(float mm){
+    public float mmToPx(float mm){
         return mm * metrics.xdpi * (1.0f/25.4f);
     }
 
-    private float pxToDp(float pix){
+    public float pxToDp(float pix){
         return  pix / dpDensity;
     }
 
-    private float dpToPx(float mm){
+    public float dpToPx(float mm){
         return mm * dpDensity;
     }
 
