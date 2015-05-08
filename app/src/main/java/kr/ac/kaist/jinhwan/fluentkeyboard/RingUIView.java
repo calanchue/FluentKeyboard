@@ -21,6 +21,10 @@ public class RingUIView extends RelativeLayout implements OtherTouchListener {
         V1, V2
     }
 
+    private class FeedBackCircle{
+        float radius;
+    }
+
     private String[] _keySetERROR = {"-", "-", "-", "-", "-", "-", "-", "-"};
     private String[] _keySet = {"<-", "ㅇ", "ㅈ", "ㅅ", "ㅂ", "ㄷ", "ㄴ", "ㄱ"};
     private String[] _keySet2 = {"<-", "ㅁ", "ㅊ", "ㅎ", "ㅍ", "ㅌ", "ㄹ", "ㅋ"};
@@ -125,7 +129,6 @@ public class RingUIView extends RelativeLayout implements OtherTouchListener {
         }
     }
 
-
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
@@ -134,34 +137,17 @@ public class RingUIView extends RelativeLayout implements OtherTouchListener {
         paint.setColor(Color.RED);
         canvas.drawCircle(getWidth()/2, getHeight()/2 , 1, paint);
 
-        paint.setColor(hoverIn?Color.MAGENTA : Color.GRAY);
-        float VIUISize = VIUIPro * getHeight();
-        canvas.drawCircle(getWidth()/2, getHeight()/2, VIUISize , paint);
+        if(S.getInstance().hoverTrack) {
+            paint.setColor(hoverIn ? Color.MAGENTA : Color.GRAY);
+            float VIUISize = VIUIPro * getHeight();
+            canvas.drawCircle(getWidth() / 2, getHeight() / 2, VIUISize, paint);
 
-        paint.setColor(Color.MAGENTA);
-        float length = VIUISize/2;
-        canvas.drawLine(hoverX -length, hoverY ,hoverX +length, hoverY, paint );
-        canvas.drawLine(hoverX, hoverY-length ,hoverX, hoverY+length, paint );
+            paint.setColor(Color.MAGENTA);
+            float length = VIUISize / 2;
+            canvas.drawLine(hoverX - length, hoverY, hoverX + length, hoverY, paint);
+            canvas.drawLine(hoverX, hoverY - length, hoverX, hoverY + length, paint);
 
-  /*      if(!moveHistory.isEmpty()) {
-            while(moveHistory.size() < 10){
-                moveHistory.removeFirst();
-            }
-            paint.setColor(Color.BLACK);
-            Path path = new Path();
-            path.setFillType(Path.FillType.EVEN_ODD);
-            MoveData prevPoint = moveHistory.get(0);
-            path.moveTo(prevPoint.x, prevPoint.y);
-            Paint currPaint = paint;
-            float radius = S.getInstance().lastInputRadius;
-            float transPro = VIUISize/radius;
-
-            for (MoveData input : moveHistory) {
-                canvas.drawLine(prevPoint.x * transPro + getWidth()/2, prevPoint.y, input.x, input.y, currPaint);
-                prevPoint = input;
-            }
-        }*/
-
+        }
     }
 
     @Override
