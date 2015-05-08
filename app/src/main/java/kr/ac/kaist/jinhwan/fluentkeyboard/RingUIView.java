@@ -25,7 +25,7 @@ public class RingUIView extends RelativeLayout implements OtherTouchListener {
     private String[] _keySet = {"<-", "ㅇ", "ㅈ", "ㅅ", "ㅂ", "ㄷ", "ㄴ", "ㄱ"};
     private String[] _keySet2 = {"<-", "ㅁ", "ㅊ", "ㅎ", "ㅍ", "ㅌ", "ㄹ", "ㅋ"};
 
-    private double UI_SIZE = 100;
+    private double UI_SIZE = S.getInstance().getLastInputRadius();
 
     int centerX ;// = getX() + getWidth() / 2;
     int centerY ;//= getY() + getHeight() / 2;
