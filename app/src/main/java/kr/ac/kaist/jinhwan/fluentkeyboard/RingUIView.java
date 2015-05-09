@@ -5,13 +5,17 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.PorterDuff;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.RelativeLayout;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 
@@ -25,18 +29,24 @@ public class RingUIView extends RelativeLayout implements OtherTouchListener {
         float radius;
     }
 
-    private String[] _keySetERROR = {"-", "-", "-", "-", "-", "-", "-", "-"};
-    private String[] _keySet = {"<-", "ㅇ", "ㅈ", "ㅅ", "ㅂ", "ㄷ", "ㄴ", "ㄱ"};
-    private String[] _keySet2 = {"<-", "ㅁ", "ㅊ", "ㅎ", "ㅍ", "ㅌ", "ㄹ", "ㅋ"};
+    private class DirToAlphabetViewMap extends HashMap<Direction, AlphabetView>{};
 
-    private double UI_SIZE = S.getInstance().getLastInputRadius();
+    int currKeySet = 0;
+    private final int keySetSize = 2; //total key set, keyset, keyset2
+
+    private final String[] _keySetERROR = {"-", "-", "-", "-", "-", "-", "-", "-"};
+    private final String[][] _keySets = {{"<-", "ㅇ", "ㅈ", "ㅅ", "ㅂ", "ㄷ", "ㄴ", "ㄱ"},{"<-", "ㅁ", "ㅊ", "ㅎ", "ㅍ", "ㅌ", "ㄹ", "ㅋ"}};
+
+    private double UI_SIZE;
+    private double UI_SIZE_2;
 
     int centerX ;// = getX() + getWidth() / 2;
     int centerY ;//= getY() + getHeight() / 2;
 
     Paint paint = new Paint();
-    LinkedList<AlphabetView> ringLeafList = new LinkedList<>();
-    HashMap<Direction, AlphabetView> dirToLeaf = new HashMap<>();
+    ArrayList<ArrayList<AlphabetView>> ringLeafList = new ArrayList<>();
+    DirToAlphabetViewMap[] dirToLeaf = {new DirToAlphabetViewMap(), new DirToAlphabetViewMap()};
+    FeedBackView feedBackView;
 
     private float mCurX;
     private float mCurY;
@@ -62,19 +72,33 @@ public class RingUIView extends RelativeLayout implements OtherTouchListener {
         centerY = getHeight() / 2;
 
         UI_SIZE = 0.6 * getWidth()/2;
+        UI_SIZE_2 = UI_SIZE * 1.5;
 
 
         //Log.e("ASDF", String.format("%f, %f, %d, %d", getX(), getY(), getWidth(), getHeight()));
 
-        for (int i = 0; i < _keySet.length; i++) {
-            AlphabetView alphabetView = ringLeafList.get(i);
+        for(AlphabetView alphabetView : ringLeafList.get(0)){
             float childX = (float)(getWidth()/2 + UI_SIZE*Math.cos(radian) - alphabetView.getWidth()/2);
             float childY = (float)(getHeight()/2 + UI_SIZE*Math.sin(radian) - alphabetView.getHeight()/2);
             RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) alphabetView.getLayoutParams();
             params.setMargins((int)childX, (int)childY, 0, 0);
             alphabetView.setOriginalPosition((int)childX, (int)childY);
             //Log.d("debug", ""+i);
-           // Log.d("debug",String.format("alphabetView position %f %f" , alphabetView.getX(), alphabetView.getY())  );
+            // Log.d("debug",String.format("alphabetView position %f %f" , alphabetView.getX(), alphabetView.getY())  );
+
+            radian -= Math.PI / 4;
+        }
+
+        for(AlphabetView alphabetView : ringLeafList.get(1)){
+            float childX = (float)(getWidth()/2 + UI_SIZE_2*Math.cos(radian) - alphabetView.getWidth()/2);
+            float childY = (float)(getHeight()/2 + UI_SIZE_2*Math.sin(radian) - alphabetView.getHeight()/2);
+            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) alphabetView.getLayoutParams();
+            params.setMargins((int)childX, (int)childY, 0, 0);
+            alphabetView.setOriginalPosition((int)childX, (int)childY);
+
+            alphabetView.animate().scaleX(0.7f).scaleY(0.7f).start();
+//            alphabetView.setScaleX(0.7f);
+//            alphabetView.setScaleY(0.7f);
 
             radian -= Math.PI / 4;
         }
@@ -95,38 +119,37 @@ public class RingUIView extends RelativeLayout implements OtherTouchListener {
         paint.setStyle(Paint.Style.STROKE);
 
 
+        LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        feedBackView = (FeedBackView)inflater.inflate(R.layout.feedback_circle_view,null);
+        this.addView(feedBackView);
+
         //Log.e("ASDF", String.format("%f, %f, %d, %d", centerX, centerY, getWidth(), getHeight()));
         double radian = 0;
-        for (int i = 0; i < _keySet.length; i++) {
-            LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            View view = inflater.inflate(R.layout.alphabet_view, null);
-            AlphabetView alphabetView = (AlphabetView) view;
-            alphabetView.setText(_keySet[i]);
+        for(int keySetNum = 0; keySetNum < keySetSize ; keySetNum++) {
+            ringLeafList.add(new ArrayList<AlphabetView>());
+            for (int i = 0; i < _keySets[keySetNum].length; i++) {
 
-            this.addView(alphabetView);
-            ringLeafList.add(alphabetView);
-            dirToLeaf.put(Direction.values()[i], alphabetView); //E,NE ...
+                View view = inflater.inflate(R.layout.alphabet_view, null);
+                AlphabetView alphabetView = (AlphabetView) view;
+                alphabetView.setText(_keySets[keySetNum][i]);
 
+
+                this.addView(alphabetView);
+                ringLeafList.get(keySetNum).add(alphabetView);
+                dirToLeaf[keySetNum].put(Direction.values()[i], alphabetView); //E,NE ...
+            }
         }
     }
 
     public void changeSet(KeyMode keyMode){
-        int i = 0;
-        String[] currText;
         switch(keyMode){
             case V1:
-                currText = _keySet;
+                currKeySet = 0;
                 break;
             case V2:
-                currText = _keySet2;
+                currKeySet = 1;
                 break;
-            default:
-                currText = _keySetERROR;
         };
-        for(AlphabetView alphabetView : ringLeafList){
-            alphabetView.setText(currText[i]);
-            i++;
-        }
     }
 
     @Override
@@ -172,7 +195,7 @@ public class RingUIView extends RelativeLayout implements OtherTouchListener {
     private boolean fixMovement = false;
     public void fixMovement(){
         fixMovement = true;
-        for(AlphabetView av : ringLeafList){
+        for(AlphabetView av : ringLeafList.get(currKeySet)){
             if(av != currLeaf){
                 av.recoverToOriginal();
             }else{
@@ -185,10 +208,25 @@ public class RingUIView extends RelativeLayout implements OtherTouchListener {
     }
     public void releaseMovement(){
         fixMovement = false;
-        for(AlphabetView av : ringLeafList){
-             av.recoverToOriginal();
+        for(AlphabetView av : ringLeafList.get(currKeySet)){
+            av.recoverToOriginal();
         }
     }
+
+    public void setOuterRingColor(int color){
+/*        FeedBackCircle newCircle = new FeedBackCircle(getSmallerSide());
+        feedBackCircleList.add(newCircle);
+        ObjectAnimator.ofFloat(newCircle, "radius", getSmallerSide(), getSmallerSide() *1.2f).setDuration(500).start();
+        invalidate();*/
+        /*Animation feedbackAnim= AnimationUtils.loadAnimation(getContext(), R.anim.ring_feedback);
+        feedBackView.startAnimation(feedbackAnim);
+*/
+/*        StateListDrawable background = (StateListDrawable) feedBackView.getBackground();
+        TransitionDrawable td = (TransitionDrawable) background.getCurrent();
+        td.startTransition(2000);*/
+        feedBackView.getBackground().setColorFilter(color, PorterDuff.Mode.MULTIPLY);
+    }
+
 
 
     private class MoveData{
@@ -239,7 +277,7 @@ public class RingUIView extends RelativeLayout implements OtherTouchListener {
 
                 if(flick_valid) {
                     Direction dir = Direction.getOpposite(Direction.getDirection(mDownX, mDownY, x, y));
-                    AlphabetView leaf = dirToLeaf.get(dir);
+                    AlphabetView leaf = dirToLeaf[currKeySet].get(dir);
                     float progress = Math.min((float) (flickLength / S.getInstance().getMaxFlickRadius()), 1f);
                     if (currLeaf != leaf && currLeaf != null) {
                         currLeaf.recoverToOriginal();

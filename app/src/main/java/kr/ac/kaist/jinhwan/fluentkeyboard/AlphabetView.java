@@ -57,11 +57,8 @@ public class AlphabetView extends TextView {
         this.animate().x(x ).y(y).start();
     }
 
-    public void confirmMove(){
+    public void setColor(){
         AnimatorSet move = new AnimatorSet();
-
-
-
     }
 
     public void select(){

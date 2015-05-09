@@ -146,8 +146,8 @@
 
 
     <kr.ac.kaist.jinhwan.fluentkeyboard.RingUIView
-        android:layout_width="250dp"
-        android:layout_height="250dp"
+        android:layout_width="300dp"
+        android:layout_height="300dp"
         android:id="@+id/ringUIView"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />

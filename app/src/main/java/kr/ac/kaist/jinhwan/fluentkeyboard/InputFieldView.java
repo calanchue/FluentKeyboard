@@ -316,6 +316,7 @@ public class InputFieldView extends ViewGroup {
                 if(System.currentTimeMillis() - lastAClickTime < keyPadInterval){
                     keyPadState = 1;
                     ringUIView.changeSet(RingUIView.KeyMode.V2);
+                    ringUIView.setOuterRingColor(Color.BLUE);
                 }
 
 
@@ -363,6 +364,8 @@ public class InputFieldView extends ViewGroup {
                 }
 
 
+                //dooing
+
                 // Does it travel VI? , below relevant code
                 if(!VIIn && !VIOrigin){
                     VIIn = isInRadius(mCurX,mCurY, m_VIX, m_VIY, S.getInstance().getLastInputRadius());
@@ -380,6 +383,7 @@ public class InputFieldView extends ViewGroup {
                     if(prevIn){
                         //it goes out from VI!
                         if(currIn == false){
+                            ringUIView.setOuterRingColor(Color.DKGRAY);
                             prevIn = false;
                         }
                     }else {
@@ -449,6 +453,7 @@ public class InputFieldView extends ViewGroup {
 
                 isMoving =false;
 
+                ringUIView.setOuterRingColor(Color.WHITE);
                 ringUIView.releaseMovement();
                 ringUIView.changeSet(RingUIView.KeyMode.V1);
                 keyPadState = 0;

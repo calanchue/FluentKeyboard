@@ -118,14 +118,14 @@ public class S implements Serializable{
     public float selectSize = 2.0f;
     public long recoverDuration = 500;
     public float selectAlpha = 1.0f;
-    private float minFlickRadius = 5;
-    private float maxFlickRadius = 10;
+    private float minFlickRadius = 50;
+    private float maxFlickRadius = 100;
     private float validFlickRadius = maxFlickRadius *9/10;
     //public boolean fixLastInput = true;
     public float ringScale=1f;
     public int ringOffX=0;
     public int ringOffY=0;
-    private float lastInputRadius = 10;
+    private float lastInputRadius = 100;
     public float longPressInterval = 500;
     public InputOption inputOption = InputOption.Fixed;
     public int adaptHistorySize = 10;

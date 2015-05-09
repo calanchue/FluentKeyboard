@@ -54,9 +54,17 @@ public class MainActivity extends ActionBarActivity implements MessageListener{
 
         String last_s_path = settings.getString(LAST_S_PATH_KEY,null);
         if(last_s_path != null){
-            S.load(last_s_path);
-            Toast.makeText(MainActivity.this, "LOAD: " +
-                    last_s_path, Toast.LENGTH_LONG).show();
+            boolean pass = S.load(last_s_path);
+            if(pass){
+                Toast.makeText(MainActivity.this, "LOAD: " +
+                        last_s_path, Toast.LENGTH_LONG).show();
+            }else{
+                Toast.makeText(MainActivity.this, "FAIL TO LOAD: " +
+                        last_s_path, Toast.LENGTH_LONG).show();
+                SharedPreferences.Editor editor = settings.edit();
+                editor.putString(LAST_S_PATH_KEY, null);
+                editor.commit();
+            }
         }
 
         S.getInstance().setDisplayMetrics(getResources().getDisplayMetrics());
