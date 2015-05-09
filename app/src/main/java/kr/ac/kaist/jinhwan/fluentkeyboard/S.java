@@ -40,35 +40,43 @@ public class S implements Serializable{
     }
 
     public float getMinFlickRadius() {
-        return mmToPx(minFlickRadius);
+        //return mmToPx(minFlickRadius);
+        return minFlickRadius;
     }
 
     public void setMinFlickRadius(float minFlickRadius) {
-        this.minFlickRadius = pxToMm(minFlickRadius);
+        //this.minFlickRadius = pxToMm(minFlickRadius);
+        this.minFlickRadius = minFlickRadius;
     }
 
     public float getMaxFlickRadius() {
-        return mmToPx(maxFlickRadius);
+        //return mmToPx(maxFlickRadius);
+        return maxFlickRadius;
     }
 
     public void setMaxFlickRadius(float maxFlickRadius) {
-        this.maxFlickRadius = pxToMm(maxFlickRadius);
+        //this.maxFlickRadius = pxToMm(maxFlickRadius);
+        this.maxFlickRadius =maxFlickRadius;
     }
 
     public float getValidFlickRadius() {
-        return mmToPx(validFlickRadius);
+        //return mmToPx(validFlickRadius);
+        return validFlickRadius;
     }
 
     public void setValidFlickRadius(float validFlickRadius) {
-        this.validFlickRadius = pxToMm(validFlickRadius);
+        //this.validFlickRadius = pxToMm(validFlickRadius);
+        this.validFlickRadius = validFlickRadius;
     }
 
     public float getLastInputRadius() {
-        return dpToPx(lastInputRadius);
+        //return dpToPx(lastInputRadius);
+        return lastInputRadius;
     }
 
     public void setLastInputRadius(float lastInputRadius) {
-        this.lastInputRadius = pxToDp(lastInputRadius);
+        //this.lastInputRadius = pxToDp(lastInputRadius);
+        this.lastInputRadius = lastInputRadius;
     }
 
     public static enum InputOption {
