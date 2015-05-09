@@ -5,5 +5,7 @@
     <dimen name="flowlayout_horizontal_padding">10dp</dimen>
     <dimen name="flowlayout_vertical_padding">10dp</dimen>
     <dimen name="mainSettingContainerDefaultHeight">10dp</dimen>
+    <dimen name="RingUISize">40dp</dimen>
+
 
 </resources>
