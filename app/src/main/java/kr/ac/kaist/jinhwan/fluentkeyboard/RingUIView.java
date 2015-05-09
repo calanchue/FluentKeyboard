@@ -71,7 +71,7 @@ public class RingUIView extends RelativeLayout implements OtherTouchListener {
         centerX = getWidth() / 2;
         centerY = getHeight() / 2;
 
-        UI_SIZE = 0.6 * getWidth()/2;
+        UI_SIZE = 0.5 * getWidth()/2;
         UI_SIZE_2 = UI_SIZE * 1.5;
 
 
@@ -103,7 +103,7 @@ public class RingUIView extends RelativeLayout implements OtherTouchListener {
             radian -= Math.PI / 4;
         }
 
-        //invalidate();
+        invalidate();
     }
 
     @Override
@@ -192,7 +192,7 @@ public class RingUIView extends RelativeLayout implements OtherTouchListener {
         invalidate();
     }
 
-    private boolean fixMovement = false;
+ /*   private boolean fixMovement = false;
     public void fixMovement(){
         fixMovement = true;
         for(AlphabetView av : ringLeafList.get(currKeySet)){
@@ -212,6 +212,16 @@ public class RingUIView extends RelativeLayout implements OtherTouchListener {
             av.recoverToOriginal();
         }
     }
+*/
+    public void setColorDir(Direction dir , int color){
+        for(DirToAlphabetViewMap map : dirToLeaf){
+            map.get(dir).getBackground().setColorFilter(color, PorterDuff.Mode.MULTIPLY);
+        }
+    }
+
+    public void setColorDir(Direction dir , int color, int keyMode){
+        dirToLeaf[keyMode].get(dir).getBackground().setColorFilter(color, PorterDuff.Mode.MULTIPLY);
+    }
 
     public void setOuterRingColor(int color){
 /*        FeedBackCircle newCircle = new FeedBackCircle(getSmallerSide());
@@ -228,6 +238,19 @@ public class RingUIView extends RelativeLayout implements OtherTouchListener {
     }
 
 
+    public void setSelection(int keyMode, Direction dir){
+        Log.d("ring_selection", "select : " + dir);
+        AlphabetView curr = dirToLeaf[keyMode].get(dir);
+        curr.moveToPositionByAnimation(centerX - curr.getWidth()/2, centerY - curr.getHeight()/2 );
+        curr.select();
+    }
+
+
+    public void setSelectionDisable(int keyMode, Direction dir) {
+        Log.d("ring_selection", "deselect : " + dir);
+        dirToLeaf[keyMode].get(dir).recoverToOriginal();
+    }
+
 
     private class MoveData{
         float x,y;
@@ -243,11 +266,11 @@ public class RingUIView extends RelativeLayout implements OtherTouchListener {
 
     @Override
     public boolean otherOnTouchEvent(MotionEvent e) {
-        if(fixMovement){
+     /*   if(fixMovement){
             return false;
         }
-
-        Log.v("RingUI", "otherOnTouchEvent");
+*/
+       /* Log.v("RingUI", "otherOnTouchEvent");
         float x = e.getX();
         float y = e.getY();
 
@@ -259,8 +282,8 @@ public class RingUIView extends RelativeLayout implements OtherTouchListener {
         switch (e.getAction()) {
 
             case MotionEvent.ACTION_DOWN:
-                moveHistory = new LinkedList<>();
-                moveHistory.add(new MoveData(mCurX, mCurY, System.currentTimeMillis()));
+                //moveHistory = new LinkedList<>();
+                //moveHistory.add(new MoveData(mCurX, mCurY, System.currentTimeMillis()));
 
                 mDownX = x;
                 mDownY = y;
@@ -269,7 +292,7 @@ public class RingUIView extends RelativeLayout implements OtherTouchListener {
                 //Log.d("inputFiledView", "down");
                 break;
             case MotionEvent.ACTION_MOVE:
-                moveHistory.add(new MoveData(mCurX, mCurY, System.currentTimeMillis()));
+                //moveHistory.add(new MoveData(mCurX, mCurY, System.currentTimeMillis()));
 
                 isMoving = true;
                 double flickLength = Math.sqrt(Math.pow(mDownX-x,2) + Math.pow(mDownY-y,2));
@@ -278,21 +301,23 @@ public class RingUIView extends RelativeLayout implements OtherTouchListener {
                 if(flick_valid) {
                     Direction dir = Direction.getOpposite(Direction.getDirection(mDownX, mDownY, x, y));
                     AlphabetView leaf = dirToLeaf[currKeySet].get(dir);
-                    float progress = Math.min((float) (flickLength / S.getInstance().getMaxFlickRadius()), 1f);
+
+                    // curr leaf should be changed?
                     if (currLeaf != leaf && currLeaf != null) {
+                        //curr leaf should be changed
                         currLeaf.recoverToOriginal();
                     }
                     currLeaf = leaf;
 
-                    int pX = (int) (progress * (centerX - leaf.getWidth() / 2) + (1 - progress) * leaf.getOriginalX());
-                    int pY = (int) (progress * (centerY - leaf.getHeight() / 2) + (1 - progress) * leaf.getOriginalY());
-
-                    if(flickLength > S.getInstance().getValidFlickRadius()){
+                    if(flickLength > S.getInstance().getValidFlickRadius() && !currLeaf.isSelected()){
+                        float progress = 1f;
+                        int pX = (int) (progress * (centerX - leaf.getWidth() / 2) + (1 - progress) * leaf.getOriginalX());
+                        int pY = (int) (progress * (centerY - leaf.getHeight() / 2) + (1 - progress) * leaf.getOriginalY());
+                        Log.d("RingUI", String.format("move to x=%d, y=%d", (int) pX, (int) pY));
+                        currLeaf.moveToByInstant(pX, pY);
                         currLeaf.select();
                     }
 
-                    Log.d("RingUI", String.format("move to x=%d, y=%d", (int) pX, (int) pY));
-                    currLeaf.moveToByInstant(pX, pY);
                 }else{
                     if(currLeaf != null){
                         currLeaf.recoverToOriginal();
@@ -308,7 +333,7 @@ public class RingUIView extends RelativeLayout implements OtherTouchListener {
                     currLeaf.recoverToOriginal();
                 }
                 break;
-        }
+        }*/
 
 
 

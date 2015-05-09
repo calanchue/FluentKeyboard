@@ -44,17 +44,19 @@ public class AlphabetView extends TextView {
     }
 
     public void recoverToOriginal(){
-        if(getX() != originalX || getY() != originalY) {
+
+
             Log.d("RecoverToOrigin", String.format("x=%d, y=%d", originalX, originalY));
             this.animate().setInterpolator(new OvershootInterpolator()).x(originalX).y(originalY).
                     scaleX(1.0f).scaleY(1.0f).
                     alpha(S.getInstance().originalAlpha).setDuration(S.getInstance().recoverDuration).start();
             isSelected = false;
-        }
+
     }
 
     public void moveToPositionByAnimation(int x, int y){
         this.animate().x(x ).y(y).start();
+
     }
 
     public void setColor(){

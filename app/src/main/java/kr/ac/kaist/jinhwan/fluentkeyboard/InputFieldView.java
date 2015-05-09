@@ -11,9 +11,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.List;
 
 import static kr.ac.kaist.jinhwan.fluentkeyboard.Direction.getDirection;
 import static kr.ac.kaist.jinhwan.fluentkeyboard.Direction.getDirection4;
@@ -34,7 +32,7 @@ public class InputFieldView extends ViewGroup {
     private Paint blackPaint = new Paint();
 
     private boolean flick_valid = false;
-    private int keyPadState = 0;
+    private int keyMode = 0;
     private int MAX_KEY_PAD =2;
     private int keyPadInterval = 300;
     private long lastAClickTime = 0;
@@ -145,7 +143,7 @@ public class InputFieldView extends ViewGroup {
 
 
     InputHistory gestureHistory = new InputHistory();
-    List<InputData> recentInputHistory = new LinkedList<>();
+    LinkedList<InputData> recentInputHistory = new LinkedList<>();
     //List<Float[]> VIInputHistory = new ArrayList<>();
 
 
@@ -294,6 +292,7 @@ public class InputFieldView extends ViewGroup {
     long currBSInterval;
     long lastBSTime;
 
+    Direction startDirection;
 
 
     LinkedList<float[]>  oneFlickHistory = new LinkedList<>();
@@ -314,14 +313,14 @@ public class InputFieldView extends ViewGroup {
 
             case MotionEvent.ACTION_DOWN:
                 if(System.currentTimeMillis() - lastAClickTime < keyPadInterval){
-                    keyPadState = 1;
+                    keyMode = 1;
                     ringUIView.changeSet(RingUIView.KeyMode.V2);
-                    ringUIView.setOuterRingColor(Color.BLUE);
+                    ringUIView.setOuterRingColor(Color.DKGRAY);
                 }
 
 
+                //initializing
                 VIOrigin = Math.sqrt(Math.pow(m_VIX -mCurX,2) + Math.pow(m_VIY -mCurY,2)) < S.getInstance().getLastInputRadius();
-
                 mDownX = mCurX;
                 mDownY = mCurY;
                 flick_valid = false;
@@ -340,28 +339,38 @@ public class InputFieldView extends ViewGroup {
                 doubleConsonant= false;
                 currBSInterval = ORIGINAL_BS_INTERVAL;
                 lastBSTime = 0;
+
+                //fix property
+                startDirection = getDirection(m_VIX, m_VIY, mDownX, mDownY);
+
+                //do something
+                ringUIView.setColorDir(startDirection, Color.DKGRAY, keyMode);
+
                 //Log.d("inputFiledView", "down");
                 break;
             case MotionEvent.ACTION_MOVE:
                 isMoving = true;
 
-                if(Math.sqrt(Math.pow(mDownX-mCurX,2) + Math.pow(mDownY-mCurY,2)) > S.getInstance().getMinFlickRadius()){
-                    outMinFlickRadius = true;
-                }else{
-                    if(outMinFlickRadius == false) {
-                        flick_valid = true;
+                // never out min flick before
+                if(!outMinFlickRadius){
+                    if(Math.sqrt(Math.pow(mDownX-mCurX,2) + Math.pow(mDownY-mCurY,2)) > S.getInstance().getMinFlickRadius()){
+                        outMinFlickRadius = true;
+                        ringUIView.setSelection(keyMode, startDirection);
+                    }else{
                         if (System.currentTimeMillis() - lastDownTime > S.getInstance().longPressInterval) {
                             //force last position
-                            recentInputHistory = new ArrayList<>();
+                            while(!recentInputHistory.isEmpty()){
+                                recentInputHistory.removeFirst();
+                            }
                             for (int i = 0; i < S.getInstance().adaptHistorySize; i++) {
                                 recentInputHistory.add(new InputData(mCurX, mCurY));
                             }
                             m_VIX = mCurX;
                             m_VIY = mCurY;
                         }
-                        flick_valid = false;
                     }
-                }
+                }// rea arrange VI point
+
 
 
                 //dooing
@@ -375,7 +384,7 @@ public class InputFieldView extends ViewGroup {
                         }else {
                             inDirection = Direction.getDirection(mDownX, mDownY, mCurX, mCurY);
                         }
-                        ringUIView.fixMovement();
+                        //ringUIView.fixMovement();
                         prevIn = true;
                     }
                 }else if(VIIn && !VIOrigin){
@@ -383,7 +392,7 @@ public class InputFieldView extends ViewGroup {
                     if(prevIn){
                         //it goes out from VI!
                         if(currIn == false){
-                            ringUIView.setOuterRingColor(Color.DKGRAY);
+                            ringUIView.setOuterRingColor(Color.BLUE);
                             prevIn = false;
                         }
                     }else {
@@ -445,7 +454,7 @@ public class InputFieldView extends ViewGroup {
                         // normal click or press end
                         lastAClickTime = System.currentTimeMillis();
                         printDirection("A_click ");
-                        //keyPadState = ++keyPadState % MAX_KEY_PAD;
+                        //keyMode = ++keyMode % MAX_KEY_PAD;
 
                         isLastInput = true;
                     }
@@ -454,9 +463,11 @@ public class InputFieldView extends ViewGroup {
                 isMoving =false;
 
                 ringUIView.setOuterRingColor(Color.WHITE);
-                ringUIView.releaseMovement();
+                //ringUIView.releaseMovement();
                 ringUIView.changeSet(RingUIView.KeyMode.V1);
-                keyPadState = 0;
+                ringUIView.setColorDir(startDirection, Color.WHITE);
+                ringUIView.setSelectionDisable(keyMode, startDirection);
+                keyMode = 0;
 
                 break;
         }
@@ -557,22 +568,22 @@ public class InputFieldView extends ViewGroup {
 
     private void dirToConsonantOut(Direction dir){
         if (dir != backSpaceDir) {
-            if (keyPadState == 0) {
+            if (keyMode == 0) {
                 printText(mapInputToKey(keyPadType.J1, dir));
                 printDirection(dir.toString());
-            } else if (keyPadState == 1) {
+            } else if (keyMode == 1) {
                 printText(mapInputToKey(keyPadType.J2, dir));
                 printDirection(String.format("<font color='blue'>%s</font>,", dir.toString()));
             }
         } else if (dir == backSpaceDir) {
-            if (keyPadState == 0) {
+            if (keyMode == 0) {
                 if(currBSInterval != ORIGINAL_BS_INTERVAL){//drag bs happened
                     //already bs by dragging
                 }else {
                     Log.d("inputfieldview", "bs");
                     messageListener.listenMessage(MessageListener.Type.special, "bs");
                 }
-            } else if (keyPadState == 1) {
+            } else if (keyMode == 1) {
 
             }
         }
@@ -640,7 +651,7 @@ public class InputFieldView extends ViewGroup {
             canvas.drawLine(mDownX+xOff, mDownY+yOff, mCurX+xOff, mCurY+yOff, flick_valid ? boldMagentaPaint : boldBlackPaint);
             canvas.drawCircle(mDownX+xOff,mDownY+yOff, S.getInstance().getMinFlickRadius(),flick_valid ? boldMagentaPaint : boldBlackPaint);
             for(Coord coord :UIPoints){
-                canvas.drawLine(mDownX+xOff, mDownY+yOff, mDownX+coord.x+xOff, mDownY+coord.y+yOff, keyPadState ==0 ? boldBlackPaint : boldBluePaint);
+                canvas.drawLine(mDownX+xOff, mDownY+yOff, mDownX+coord.x+xOff, mDownY+coord.y+yOff, keyMode ==0 ? boldBlackPaint : boldBluePaint);
             }
         }
     }
