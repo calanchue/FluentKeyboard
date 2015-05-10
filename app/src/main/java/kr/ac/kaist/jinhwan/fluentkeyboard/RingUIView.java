@@ -47,6 +47,7 @@ public class RingUIView extends RelativeLayout implements OtherTouchListener {
     ArrayList<ArrayList<AlphabetView>> ringLeafList = new ArrayList<>();
     DirToAlphabetViewMap[] dirToLeaf = {new DirToAlphabetViewMap(), new DirToAlphabetViewMap()};
     FeedBackView feedBackView;
+    View widthView, heightView;
 
     private float mCurX;
     private float mCurY;
@@ -73,6 +74,16 @@ public class RingUIView extends RelativeLayout implements OtherTouchListener {
 
         UI_SIZE = 0.5 * getWidth()/2;
         UI_SIZE_2 = UI_SIZE * 1.5;
+
+        RelativeLayout.LayoutParams wparams = (RelativeLayout.LayoutParams) widthView.getLayoutParams();
+        wparams.width = (int) UI_SIZE_2;
+        wparams.height =(int)(UI_SIZE_2 * 0.10);
+        wparams.setMargins(centerX - wparams.width/2, (int)(centerY + UI_SIZE_2 * 0.75), 0,0);
+
+        RelativeLayout.LayoutParams hparams = (RelativeLayout.LayoutParams) heightView.getLayoutParams();
+        hparams.width = (int)(UI_SIZE_2 * 0.10);
+        hparams.height =(int) UI_SIZE_2;
+        hparams.setMargins((int)(centerX + UI_SIZE_2 * 0.75) , centerY - hparams.height/2, 0,0);
 
 
         //Log.e("ASDF", String.format("%f, %f, %d, %d", getX(), getY(), getWidth(), getHeight()));
@@ -122,6 +133,15 @@ public class RingUIView extends RelativeLayout implements OtherTouchListener {
         LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         feedBackView = (FeedBackView)inflater.inflate(R.layout.feedback_circle_view,null);
         this.addView(feedBackView);
+        widthView = new View(context);
+        widthView.setBackgroundResource(R.drawable.fill_all);
+        widthView.setAlpha(S.getInstance().originalAlpha);
+        this.addView(widthView);
+        heightView = new View(context);
+        heightView.setBackgroundResource(R.drawable.fill_all);
+        heightView.setAlpha(S.getInstance().originalAlpha);
+        this.addView(heightView);
+
 
         //Log.e("ASDF", String.format("%f, %f, %d, %d", centerX, centerY, getWidth(), getHeight()));
         double radian = 0;
@@ -139,6 +159,8 @@ public class RingUIView extends RelativeLayout implements OtherTouchListener {
                 dirToLeaf[keySetNum].put(Direction.values()[i], alphabetView); //E,NE ...
             }
         }
+
+
     }
 
     public void changeSet(KeyMode keyMode){
@@ -249,6 +271,16 @@ public class RingUIView extends RelativeLayout implements OtherTouchListener {
     public void setSelectionDisable(int keyMode, Direction dir) {
         Log.d("ring_selection", "deselect : " + dir);
         dirToLeaf[keyMode].get(dir).recoverToOriginal();
+    }
+
+    public void setColorWidth(int color){
+        widthView.setBackgroundColor(color);
+        //widthView.getBackground().setColorFilter(color, PorterDuff.Mode.MULTIPLY);
+    }
+
+    public void setColorHeight(int color){
+        heightView.setBackgroundColor(color);
+        //heightView.getBackground().setColorFilter(color, PorterDuff.Mode.MULTIPLY);
     }
 
 

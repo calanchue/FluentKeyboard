@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+
 public class TextConverter {
     // 초성 19자
     static List<Character> l1List = Arrays.asList('ㄱ', 'ㄲ', 'ㄴ', 'ㄷ', 'ㄸ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅃ', 'ㅅ', 'ㅆ', 'ㅇ', 'ㅈ', 'ㅉ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ');
@@ -187,7 +188,6 @@ public class TextConverter {
                 p_result.append(" ");
                 tmp_num = 0;
             }
-
         }
         Log.v("converter", "lasttmpNum:"+tmp_num);
         if(tmp_num != 0){
