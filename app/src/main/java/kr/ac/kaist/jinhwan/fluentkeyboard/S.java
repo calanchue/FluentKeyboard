@@ -132,6 +132,7 @@ public class S implements Serializable{
     public boolean hoverTrack = false;
     public boolean inDirFromStartPos = true; //false = Direction form movement Direction
     public float ringUISize = 50;
+    public float bent2MinFlickRadius = 20;
 
 
     public static void makeDefaultSaveDirectory(){

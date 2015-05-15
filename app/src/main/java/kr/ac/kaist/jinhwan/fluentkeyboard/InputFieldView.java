@@ -308,6 +308,7 @@ public class InputFieldView extends ViewGroup {
     boolean reverseBefore =false;
     float[] prevPos = new float[]{0f,0f};
     Float[] key2BentPos;
+    boolean outMinBent2Radius = false;
 
 
     ArrayList<float[]>  oneFlickHistory = new ArrayList<>();
@@ -364,6 +365,7 @@ public class InputFieldView extends ViewGroup {
                 //benting2
                 reverseBefore = false;
                 key2BentPos = null;
+                outMinBent2Radius = false;
 
                 //fix property
                 startDirection = getDirection(m_VIX, m_VIY, mDownX, mDownY);
@@ -376,7 +378,46 @@ public class InputFieldView extends ViewGroup {
                 break;
             case MotionEvent.ACTION_MOVE:
                 isMoving = true;
-
+                if(!outMinBent2Radius){
+                    if(Math.sqrt(Math.pow(mDownX-mCurX,2) + Math.pow(mDownY-mCurY,2)) > S.getInstance().bent2MinFlickRadius) {
+                        outMinBent2Radius = true;
+                    }
+                }else{
+                    if(!VIIn) {//after go into VI, bent2 will not be processed, bent1 will be processed;
+                        //calculate bent2
+                        if (!reverseBefore) {
+                            //Log.v("bent2", String.format("=============== mCur(%f,%f)", mCurX,mCurY));
+                            boolean reversBeforeTest = Direction.sameField(prevPos[0], prevPos[1], mCurX, mCurY, startDirection);
+                            //Log.v("bent2", String.format("reverseBeforeTest = %b", reversBeforeTest));
+                            if (reversBeforeTest) {
+                                //Log.v("bent2", "reverseBefore=true");
+                                reverseBefore = true;
+                            }
+                        } else {
+                            if (key2BentPos == null) {
+                                //Log.v("bent2", String.format("=============== mCur(%f,%f)", mCurX,mCurY));
+                                boolean reverseToNormal = !Direction.sameField(prevPos[0], prevPos[1], mCurX, mCurY, startDirection);
+                                Log.v("bent2", String.format("reverseToNormal = %b", reverseToNormal));
+                                if (reverseToNormal) {
+                                    boolean isInStartRadius = isInRadius(prevPos[0], prevPos[1], mDownX, mDownY, S.getInstance().getMinFlickRadius());
+                                    boolean isInOppositeFiled = Direction.sameField(mDownX, mDownY, prevPos[0], prevPos[1], startDirection);
+                                    Log.v("bent2", String.format("isInStartRadius= %b, isInOppositeField = %b", isInStartRadius, isInOppositeFiled));
+                                    if (isInStartRadius || isInOppositeFiled) {
+                                        key2BentPos = new Float[]{prevPos[0], prevPos[1]};
+                                        Log.v("bent2", String.format("new key2BentPos : %s", key2BentPos));
+                                        ringUIView.setSelectionDisable(0, startDirection);
+                                        ringUIView.setColorDir(startDirection, Color.WHITE, 0);
+                                        keyMode = 1;
+                                        ringUIView.changeSet(RingUIView.KeyMode.V2);
+                                        ringUIView.setColorDir(startDirection, Color.BLUE, 1);
+                                        ringUIView.setSelection(1, startDirection);
+                                        ringUIView.setOuterRingColor(Color.DKGRAY);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
 
 
                 //dooing
@@ -398,38 +439,6 @@ public class InputFieldView extends ViewGroup {
                         }
                     }
                 }else {//after minFlick radius
-                    if(!reverseBefore){
-                        //Log.v("bent2", String.format("=============== mCur(%f,%f)", mCurX,mCurY));
-                        boolean reversBeforeTest = Direction.sameField(prevPos[0],prevPos[1],mCurX,mCurY,startDirection);
-                        //Log.v("bent2", String.format("reverseBeforeTest = %b", reversBeforeTest));
-                        if(reversBeforeTest){
-                            //Log.v("bent2", "reverseBefore=true");
-                            reverseBefore =true;
-                        }
-                    }else {
-                        if(key2BentPos == null && !VIIn) {
-                            //Log.v("bent2", String.format("=============== mCur(%f,%f)", mCurX,mCurY));
-                            boolean reverseToNormal = !Direction.sameField(prevPos[0], prevPos[1], mCurX, mCurY, startDirection);
-                            Log.v("bent2", String.format("reverseToNormal = %b", reverseToNormal));
-                            if (reverseToNormal) {
-                                boolean isInStartRadius = isInRadius(prevPos[0], prevPos[1], mDownX, mDownY, S.getInstance().getMinFlickRadius());
-                                boolean isInOppositeFiled = Direction.sameField(mDownX, mDownY, prevPos[0], prevPos[1], startDirection);
-                                Log.v("bent2", String.format("isInStartRadius= %b, isInOppositeField = %b", isInStartRadius, isInOppositeFiled));
-                                if (isInStartRadius || isInOppositeFiled) {
-                                    key2BentPos = new Float[]{prevPos[0], prevPos[1]};
-                                    Log.v("bent2", String.format("new key2BentPos : %s", key2BentPos));
-                                    ringUIView.setSelectionDisable(0,startDirection);
-                                    ringUIView.setColorDir(startDirection, Color.WHITE,0);
-                                    keyMode = 1;
-                                    ringUIView.changeSet(RingUIView.KeyMode.V2);
-                                    ringUIView.setColorDir(startDirection,Color.BLUE, 1);
-                                    ringUIView.setSelection(1, startDirection);
-                                    ringUIView.setOuterRingColor(Color.DKGRAY);
-                                }
-                            }
-                        }
-                    }
-
                     float[] prevPos = clearFlickHistory.get(clearFlickHistory.size() - 1);
                     float currLength = (float) Math.sqrt(Math.pow(mCurX - prevPos[0], 2) + Math.pow(mCurY - prevPos[1], 2));
                     //if (currLength > travelLengthAfterVI / clearFlickHistory.size() / 2) {
@@ -466,7 +475,7 @@ public class InputFieldView extends ViewGroup {
                     }//else throw away
                 }
 
-                // Does it travel VI? , below relevant code
+                // Does it travel across VI?
                 if(!VIIn && !VIOrigin){
                     VIIn = isInRadius(mCurX,mCurY, m_VIX, m_VIY, S.getInstance().getLastInputRadius());
                     if(VIIn){//first approach to VI
@@ -917,6 +926,7 @@ public class InputFieldView extends ViewGroup {
 
         if(key2BentPos != null){
             canvas.drawCircle(key2BentPos[0],key2BentPos[1],10, redPaint );
+            canvas.drawCircle(mDownX,mDownY, S.getInstance().bent2MinFlickRadius, blackPaint);
         }
 
         canvas.drawLine(hoverX -100, hoverY ,hoverX +100, hoverY, boldMagentaPaint);

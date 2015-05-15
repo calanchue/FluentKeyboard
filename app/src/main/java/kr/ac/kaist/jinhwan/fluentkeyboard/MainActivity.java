@@ -517,6 +517,24 @@ public class MainActivity extends ActionBarActivity implements MessageListener{
                 S.getInstance().inDirFromStartPos = isChecked;
             }
         });
+
+        SeekBar bent2MinFlickRadiusSB = (SeekBar)findViewById(R.id.bent2MinFlickRadius);
+        bent2MinFlickRadiusSB.setProgress((int) S.getInstance().bent2MinFlickRadius);
+        bent2MinFlickRadiusSB.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                S.getInstance().bent2MinFlickRadius = progress;
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+            }
+        });
     }
 
 
@@ -553,6 +571,24 @@ public class MainActivity extends ActionBarActivity implements MessageListener{
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 S.getInstance().hoverTrack = isChecked;
+            }
+        });
+
+        SeekBar sb1 = (SeekBar)findViewById(R.id.lastInputRadSB);
+        sb1.setProgress((int) S.getInstance().getLastInputRadius() -50);
+        sb1.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                S.getInstance().setLastInputRadius(progress + 50);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
             }
         });
 
