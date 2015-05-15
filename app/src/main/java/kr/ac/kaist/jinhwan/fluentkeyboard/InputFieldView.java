@@ -377,14 +377,17 @@ public class InputFieldView extends ViewGroup {
                 //Log.d("inputFiledView", "down");
                 break;
             case MotionEvent.ACTION_MOVE:
+                boolean currIn = isInRadius(mCurX,mCurY, m_VIX, m_VIY, S.getInstance().getLastInputRadius());
                 isMoving = true;
+
+
                 if(!outMinBent2Radius){
                     if(Math.sqrt(Math.pow(mDownX-mCurX,2) + Math.pow(mDownY-mCurY,2)) > S.getInstance().bent2MinFlickRadius) {
                         outMinBent2Radius = true;
                     }
                 }else{
-                    if(!VIIn) {//after go into VI, bent2 will not be processed, bent1 will be processed;
-                        //calculate bent2
+                    if(!VIIn && !VIOrigin) {//after go into VI, bent2 will not be processed, bent1 will be processed;
+                        //process bent2
                         if (!reverseBefore) {
                             //Log.v("bent2", String.format("=============== mCur(%f,%f)", mCurX,mCurY));
                             boolean reversBeforeTest = Direction.sameField(prevPos[0], prevPos[1], mCurX, mCurY, startDirection);
@@ -439,6 +442,8 @@ public class InputFieldView extends ViewGroup {
                         }
                     }
                 }else {//after minFlick radius
+
+                    //PART1 calculate angleDeltaSum
                     float[] prevPos = clearFlickHistory.get(clearFlickHistory.size() - 1);
                     float currLength = (float) Math.sqrt(Math.pow(mCurX - prevPos[0], 2) + Math.pow(mCurY - prevPos[1], 2));
                     //if (currLength > travelLengthAfterVI / clearFlickHistory.size() / 2) {
@@ -457,10 +462,11 @@ public class InputFieldView extends ViewGroup {
                             float l2 = (dx1 * dx1 + dy1 * dy1) * (dx2 * dx2 + dy2 * dy2); // product of the squared lengths
 
                             double deltaAngle = Math.acos(d / Math.sqrt(l2));
-                            double __tempAD2 = angleDeltaSum;
-                            if(deltaAngle ==Double.NaN){
+
+                            if(Double.isNaN(deltaAngle)){
                                 deltaAngle = 0;
                             }
+                            double __tempAD2 = angleDeltaSum;
                             angleDeltaSum += Math.abs(deltaAngle);
 
                             Log.v("AngleDelta", String.format("angleDeltaSum=%f -> %f (+ %f)", __tempAD2, angleDeltaSum, Math.abs(deltaAngle)));
@@ -482,7 +488,8 @@ public class InputFieldView extends ViewGroup {
                     }//else throw away
                 }
 
-                // Does it travel across VI?
+
+                //PART2  Does it travel across VI?
                 if(!VIIn && !VIOrigin){
                     VIIn = isInRadius(mCurX,mCurY, m_VIX, m_VIY, S.getInstance().getLastInputRadius());
                     if(VIIn){//first approach to VI
@@ -498,7 +505,7 @@ public class InputFieldView extends ViewGroup {
                         prevIn = true;
                     }
                 }else if(VIIn && !VIOrigin){
-                    boolean currIn = isInRadius(mCurX,mCurY, m_VIX, m_VIY, S.getInstance().getLastInputRadius());
+
                     if(prevIn){
                         //it goes out from VI!
                         if(currIn == false){
