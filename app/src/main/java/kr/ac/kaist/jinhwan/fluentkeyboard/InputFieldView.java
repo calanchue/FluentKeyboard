@@ -457,10 +457,17 @@ public class InputFieldView extends ViewGroup {
                             float l2 = (dx1 * dx1 + dy1 * dy1) * (dx2 * dx2 + dy2 * dy2); // product of the squared lengths
 
                             double deltaAngle = Math.acos(d / Math.sqrt(l2));
-
+                            double __tempAD2 = angleDeltaSum;
+                            if(deltaAngle ==Double.NaN){
+                                deltaAngle = 0;
+                            }
                             angleDeltaSum += Math.abs(deltaAngle);
+
+                            Log.v("AngleDelta", String.format("angleDeltaSum=%f -> %f (+ %f)", __tempAD2, angleDeltaSum, Math.abs(deltaAngle)));
                             if (angleDeltaSum > Math.PI) {
+                                double __tempAD = angleDeltaSum;
                                 angleDeltaSum -= Math.PI;
+                                Log.v("AngleDelta", String.format("BENT angleDeltaSum=%f -> %f", __tempAD, angleDeltaSum));
                                 bentPosition.add(new float[]{mCurX, mCurY});
                                 if(bentPosition.size() > 1){
                                     if(startDirection == Direction.E){//bs direciton
@@ -505,6 +512,7 @@ public class InputFieldView extends ViewGroup {
                             prevIn = false;
                         }
                     }else {
+                        //it is in VI
                         if(inDirection == backSpaceDir){
                             /*if(System.currentTimeMillis() -  lastBSTime > currBSInterval){
                                 messageListener.listenMessage(MessageListener.Type.special, "bs");
