@@ -446,8 +446,8 @@ public class InputFieldView extends ViewGroup {
                     //PART1 calculate angleDeltaSum
                     float[] prevPos = clearFlickHistory.get(clearFlickHistory.size() - 1);
                     float currLength = (float) Math.sqrt(Math.pow(mCurX - prevPos[0], 2) + Math.pow(mCurY - prevPos[1], 2));
-                    //if (currLength > travelLengthAfterVI / clearFlickHistory.size() / 2) {
-                    if(true){
+                    if (currLength > travelLengthAfterVI / clearFlickHistory.size() / 2) {
+                    //if(true){
                         travelLengthAfterVI += currLength;
                         clearFlickHistory.add(new float[]{mCurX, mCurY});
                         if (angleDeltaCountStart && clearFlickHistory.size() >= 3) {
@@ -470,7 +470,7 @@ public class InputFieldView extends ViewGroup {
                             angleDeltaSum += Math.abs(deltaAngle);
 
                             Log.v("AngleDelta", String.format("angleDeltaSum=%f -> %f (+ %f)", __tempAD2, angleDeltaSum, Math.abs(deltaAngle)));
-                            if (angleDeltaSum > Math.PI) {
+                            if (angleDeltaSum+Math.PI*0.2 > Math.PI) {//-Math.PI*0.1 -> early detection
                                 double __tempAD = angleDeltaSum;
                                 angleDeltaSum -= Math.PI;
                                 Log.v("AngleDelta", String.format("BENT angleDeltaSum=%f -> %f", __tempAD, angleDeltaSum));
@@ -491,7 +491,10 @@ public class InputFieldView extends ViewGroup {
 
                 //PART2  Does it travel across VI?
                 if(!VIIn && !VIOrigin){
+                    //curr in VI?
                     VIIn = isInRadius(mCurX,mCurY, m_VIX, m_VIY, S.getInstance().getLastInputRadius());
+                    //curr across VI?
+
                     if(VIIn){//first approach to VI
                         if(S.getInstance().inDirFromStartPos){
                             inDirection = Direction.getDirection(mDownX,mDownY,m_VIX, m_VIY);
@@ -714,9 +717,11 @@ public class InputFieldView extends ViewGroup {
 
     private String mapInputToKey(keyPadType k, Direction d, boolean doubleConsonant){
         if(k == keyPadType.J1){
+            d = Direction.getOpposite(d);
             switch (d){
                 case E:
-                    return doubleConsonant ? "ㅃ" : "ㅂ";
+                    //backsapce
+                    return " ";
                 case NE:
                     return doubleConsonant ? "ㄸ" : "ㄷ";
                 case N:
@@ -724,19 +729,20 @@ public class InputFieldView extends ViewGroup {
                 case NW:
                     return doubleConsonant ? "ㄲ" : "ㄱ";
                 case W:
-                    //backsapce
-                    return " ";
-                case SW:
                     return "ㅇ";
+                case SW:
+                    return doubleConsonant ? "ㅃ" : "ㅂ";
                 case S:
-                    return doubleConsonant ? "ㅉ" : "ㅈ";
-                case SE:
                     return doubleConsonant ? "ㅆ" : "ㅅ";
+                case SE:
+                    return doubleConsonant ? "ㅉ" : "ㅈ";
             }
         }else if(k == keyPadType.J2){
+            d = Direction.getOpposite(d);
             switch (d){
                 case E:
-                    return "ㅍ";
+                    //bs
+                    return " ";
                 case NE:
                     return "ㅌ";
                 case N:
@@ -744,14 +750,15 @@ public class InputFieldView extends ViewGroup {
                 case NW:
                     return "ㅋ";
                 case W:
-                    //bs
-                    return " ";
-                case SW:
                     return "ㅁ";
+                case SW:
+                    return "ㅍ";
                 case S:
-                    return "ㅊ";
-                case SE:
                     return "ㅎ";
+                case SE:
+                    return "ㅊ";
+
+
             }
         }else if(k == keyPadType.M){
             switch (d){

@@ -19,10 +19,18 @@ public class TextConverter {
     static List<Character> l3List = Arrays.asList(' ', 'ㄱ', 'ㄲ', 'ㄳ', 'ㄴ', 'ㄵ', 'ㄶ', 'ㄷ', 'ㄹ', 'ㄺ', 'ㄻ', 'ㄼ', 'ㄽ', 'ㄾ', 'ㄿ', 'ㅀ', 'ㅁ', 'ㅂ', 'ㅄ', 'ㅅ', 'ㅆ', 'ㅇ', 'ㅈ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ');
     static Set<Character> l3 = new HashSet<>(l3List);
 
+    public static class ConvertResult{
+        public String full;
+        public String partial;
+        public ConvertResult(){
+
+        }
+    }
+
     public static String convertRaw(String text){
         Log.d("ASDF", String.format("%b",l2.contains("ㅣ")));
         Log.v("converter", "input="+text);
-        String retext;
+        String retext = text;
 
         retext = text.replaceAll("ㄱㄱ", "ㄲ");
         retext = retext.replaceAll("ㄷㄷ", "ㄸ");
@@ -63,6 +71,7 @@ public class TextConverter {
         retext = retext.replaceAll("ㅜㅣ", "ㅟ");
         retext = retext.replaceAll("ㅡㅣ", "ㅢ");
         retext = retext.replaceAll("ㅡㅕ", "ㅝ");
+        retext = retext.replaceAll("ㅡㅓ", "ㅟ");
 
         retext = retext.replaceAll("··", ":");
 
@@ -115,9 +124,13 @@ public class TextConverter {
                 tmp_num += l2List.indexOf(letter)*28;
 
                 boolean prev_moeum = false;
+                boolean prev_jaum = false;
                 if(i-1 >= 0 ) {
                     prev_moeum = l2.contains(retext.charAt(i - 1));
+                    prev_jaum = l1.contains(retext.charAt(i - 1));;
                 }
+
+
                 // 모음 다음에 자음이 오면 어절 종료 체크
                 if(!is_next_moeum) {
 
@@ -126,20 +139,21 @@ public class TextConverter {
                         is_next_next_moeum = l2.contains(retext.charAt(i + 2));
                     }
 
-                    if(prev_moeum && !is_next_jaum && !is_next_moeum){
+                    if(!prev_jaum && !is_next_jaum && !is_next_moeum){
                         p_result.append(letter);
                         tmp_num = 0;
-                    }else{
-
-
-                        // 모음/자음/모음인 경우 여기가 어절의 끝
-                        // 마지막 단어여도 어절 끝
-                        // 다음 단어가 띄어쓰기여도 어절 끝
+                    }else if(!prev_jaum && is_next_jaum ){
+                        p_result.append(letter);
+                        tmp_num =0;
+                    }
+                    else{
                         if(is_next_next_moeum ||  (!is_next_jaum && !is_next_moeum)) {
 
                             p_result.append( (char)tmp_num);
                             Log.v("converter",String.format("k2 tmpNum=%d ,char=%c",tmp_num,(char)tmp_num));
                             tmp_num = 0;
+                        }else {
+
                         }
                     }
                 }else{// 모음 다음 모음. 완성 + 단모음 표시
@@ -157,35 +171,134 @@ public class TextConverter {
                 }
                 // 종성 (다음에 자음이 오면 종성임)
             } else if(k3 && !is_next_moeum) {
-                tmp_num += l3List.indexOf(letter);
+
                 boolean prev_moeum = false;
                 if(i-1 >= 0 ) {
                     prev_moeum = l2.contains(retext.charAt(i - 1));
                 }
 
                 // 종성 다음에 자음이 오면 어절의 종료
-                if((!is_next_moeum || i+1==retext.length()) && prev_moeum) {
+                if((!is_next_moeum ) && prev_moeum) {
                     boolean is_next2_moeum = false;
                     if(i+2 < retext.length()) {
                         is_next2_moeum = l2.contains(retext.charAt(i + 2));
                     }
 
+                    char letterMerged = ' ';
+                    if(is_next_jaum && !is_next2_moeum){
+                        char prev = retext.charAt(i);
+                        char next = retext.charAt(i+1);
+                        if(prev=='ㄱ'){
+                            if(next=='ㅅ'){
+                                letterMerged ='ㄳ';
+                            }
+                        }else if(prev=='ㄴ'){
+                            if(next=='ㅈ'){
+                                letterMerged ='ㄵ';
+                            }else if(next=='ㅎ'){
+                                letterMerged ='ㄶ';
+                            }
+
+                        }else if(prev =='ㄹ'){
+                            if(next=='ㄱ'){
+                                letterMerged ='ㄺ';
+                            }else if(next=='ㅁ'){
+                                letterMerged ='ㄻ';
+                            }else if(next=='ㅂ'){
+                                letterMerged ='ㄼ';
+                            }else if(next=='ㅅ'){
+                                letterMerged ='ㄽ';
+                            }else if(next=='ㅌ'){
+                                letterMerged ='ㄾ';
+                            }else  if(next=='ㅍ'){
+                                letterMerged ='ㄿ';
+                            }else  if(next=='ㅎ'){
+                                letterMerged ='ㅀ';
+                            }
+                        }else if(prev =='ㅂ'){
+                            if(next=='ㅅ'){
+                                letterMerged ='ㅄ';
+                            }
+                        }
+                    }
+                    if(letterMerged != ' '){
+                        i++;
+                        letter = letterMerged;
+                    }
 
                     if (tmp_num < 0xAC00) {
                         p_result.append(letter);
                         Log.v("converter", String.format("k3 char=%c", letter));
                     } else {
+                        tmp_num += l3List.indexOf(letter);
                         p_result.append((char) tmp_num);
                         Log.v("converter", String.format("k3 tmpNum=%d ,char=%c", tmp_num, (char) tmp_num));
                     }
 
                     tmp_num = 0;
-                }else if( !prev_moeum && (!is_next_moeum || i+1 == retext.length() ) ){
-                    p_result.append(letter);
-                    tmp_num = 0;
+                }else if( !prev_moeum && (!is_next_moeum) ){
+/*                    p_result.append(letter);
+                    tmp_num = 0;*/
+
+                    boolean prev_jaum = false;
+                    if(i-1 >= 0 ) {
+                        prev_jaum = l1.contains(retext.charAt(i - 1));
+                    }
+
+                    if(prev_jaum){
+                        char letterMerged = ' ';
+                        char prev = retext.charAt(i-1);
+                        if(prev=='ㄱ'){
+                            if(letter=='ㅅ'){
+                                letterMerged ='ㄳ';
+                            }
+                        }else if(prev=='ㄴ'){
+                            if(letter=='ㅈ'){
+                                letterMerged ='ㄵ';
+                            }else if(letter=='ㅎ'){
+                                letterMerged ='ㄶ';
+                            }
+
+                        }else if(prev =='ㄹ'){
+                            if(letter=='ㄱ'){
+                                letterMerged ='ㄺ';
+                            }else if(letter=='ㅁ'){
+                                letterMerged ='ㄻ';
+                            }else if(letter=='ㅂ'){
+                                letterMerged ='ㄼ';
+                            }else if(letter=='ㅅ'){
+                                letterMerged ='ㄽ';
+                            }else if(letter=='ㅌ'){
+                                letterMerged ='ㄾ';
+                            }else  if(letter=='ㅍ'){
+                                letterMerged ='ㄿ';
+                            }else  if(letter=='ㅎ'){
+                                letterMerged ='ㅀ';
+                            }
+                        }else if(prev =='ㅂ'){
+                            if(letter=='ㅅ'){
+                                letterMerged ='ㅄ';
+                            }
+                        }
+
+
+                        if(letterMerged != ' '){
+                            if (tmp_num < 0xAC00) {
+                                p_result.append(letterMerged);
+                            } else {
+                                tmp_num += l3List.indexOf(letterMerged);
+                                p_result.append((char) tmp_num);
+                            }
+                            tmp_num = 0;
+                        }else{
+                            p_result.append(letter);
+                            tmp_num = 0;
+                        }
+                    }
+
                 }
             } else {
-                p_result.append(" ");
+                p_result.append(letter);
                 tmp_num = 0;
             }
         }

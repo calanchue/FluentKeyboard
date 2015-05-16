@@ -11,7 +11,7 @@ import android.util.Log;
 import android.view.animation.OvershootInterpolator;
 import android.widget.TextView;
 
-public class AlphabetView extends TextView {
+public class AlphabetView extends MagicTextView {
 
     Paint paint = new Paint();
 
@@ -78,11 +78,11 @@ public class AlphabetView extends TextView {
         this.animate().x(x ).y(y ).setDuration(0).start();
     }
 
-    protected void onDraw(Canvas canvas) {
+    public void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         //Log.d("onDraw", String.format("%f %f : %f %f", mDownX,mDownY,mCurX, mCurY));
 
-        canvas.drawCircle(getWidth()/2, getHeight()/2 , 1, paint);
+        //canvas.drawCircle(getWidth()/2, getHeight()/2 , 1, paint);
     }
 }
 

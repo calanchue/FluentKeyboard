@@ -114,7 +114,7 @@ public class S implements Serializable{
     private S() {
     }
 
-    public float originalAlpha = 0.5f;
+    public float originalAlpha = 1f;
     public float selectSize = 2.0f;
     public long recoverDuration = 500;
     public float selectAlpha = 1.0f;
@@ -132,7 +132,7 @@ public class S implements Serializable{
     public boolean hoverTrack = false;
     public boolean inDirFromStartPos = true; //false = Direction form movement Direction
     public float ringUISize = 50;
-    public float bent2MinFlickRadius = 20;
+    public float bent2MinFlickRadius = 500;
 
 
     public static void makeDefaultSaveDirectory(){

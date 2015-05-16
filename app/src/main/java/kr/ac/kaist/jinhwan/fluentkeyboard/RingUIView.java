@@ -35,7 +35,7 @@ public class RingUIView extends RelativeLayout implements OtherTouchListener {
     private final int keySetSize = 2; //total key set, keyset, keyset2
 
     private final String[] _keySetERROR = {"-", "-", "-", "-", "-", "-", "-", "-"};
-    private final String[][] _keySets = {{"<-", "ㅇ", "ㅈ", "ㅅ", "ㅂ", "ㄷ", "ㄴ", "ㄱ"},{"<-", "ㅁ", "ㅊ", "ㅎ", "ㅍ", "ㅌ", "ㄹ", "ㅋ"}};
+    private final String[][] _keySets = {{"<-", "ㄷ", "ㄴ", "ㄱ", "ㅇ", "ㅂ", "ㅅ", "ㅈ"},{"<-", "ㅌ", "ㄹ", "ㅋ", "ㅁ", "ㅍ", "ㅎ", "ㅊ"}};
 
     private double UI_SIZE;
     private double UI_SIZE_2;
@@ -263,7 +263,7 @@ public class RingUIView extends RelativeLayout implements OtherTouchListener {
     public void setSelection(int keyMode, Direction dir){
         Log.d("ring_selection", "select : " + dir);
         AlphabetView curr = dirToLeaf[keyMode].get(dir);
-        curr.moveToPositionByAnimation(centerX - curr.getWidth()/2, centerY - curr.getHeight()/2 );
+        //curr.moveToPositionByAnimation(centerX - curr.getWidth()/2, centerY - curr.getHeight()/2 );
         curr.select();
     }
 
