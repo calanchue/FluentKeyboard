@@ -1,5 +1,6 @@
 package kr.ac.kaist.jinhwan.fluentkeyboard;
 
+import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -15,6 +16,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.Button;
@@ -155,6 +157,19 @@ public class MainActivity extends ActionBarActivity implements MessageListener{
 
         editText.setText("setText at runtime", TextView.BufferType.EDITABLE);
         editText.setSelection(editText.getText().length());
+
+        //deal editText position Changed by layout chagne
+        final View activityRootView = findViewById(R.id.mainLayout);
+        activityRootView.getViewTreeObserver().addOnGlobalLayoutListener(
+                new ViewTreeObserver.OnGlobalLayoutListener() {
+
+                    @SuppressLint("NewApi")
+                    @Override
+                    public void onGlobalLayout() {
+                        refreshRingUIPosition();
+
+                    }
+                });
 
         onCreateOption();
         Button saveSettingB = (Button)findViewById(R.id.saveSettingB);

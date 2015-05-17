@@ -35,7 +35,9 @@ public class RingUIView extends RelativeLayout implements OtherTouchListener {
     private final int keySetSize = 2; //total key set, keyset, keyset2
 
     private final String[] _keySetERROR = {"-", "-", "-", "-", "-", "-", "-", "-"};
-    private final String[][] _keySets = {{"<-", "ㄷ", "ㄴ", "ㄱ", "ㅇ", "ㅂ", "ㅅ", "ㅈ"},{"<-", "ㅌ", "ㄹ", "ㅋ", "ㅁ", "ㅍ", "ㅎ", "ㅊ"}};
+    private final String[][] _keySets = {{"<-", "ㅇ", "ㅅ", "ㄱ", "ㄴ", "ㄷ", "ㅈ", "ㅂ"},{"<-", "ㅁ", "ㅎ", "ㅋ", "ㄹ", "ㅌ", "ㅊ", "ㅍ"}};
+    private final Integer[][] testColorSets = {{null,null,Color.argb(0xFF,0xFF,0x85,0x00),null,null,null,Color.argb(0xFF,0xFF,0x85,0x00),null},
+            {null,null,Color.argb(0xFF,0xFF,0x85,0x00),null,null,null,Color.argb(0xFF,0xFF,0x85,0x00),null}};
 
     private double UI_SIZE;
     private double UI_SIZE_2;
@@ -153,6 +155,9 @@ public class RingUIView extends RelativeLayout implements OtherTouchListener {
                 AlphabetView alphabetView = (AlphabetView) view;
                 alphabetView.setText(_keySets[keySetNum][i]);
 
+                if(testColorSets[keySetNum][i]!=null){
+                    alphabetView.setTextColor(testColorSets[keySetNum][i]);
+                }
 
                 this.addView(alphabetView);
                 ringLeafList.get(keySetNum).add(alphabetView);

@@ -288,11 +288,14 @@ public class InputFieldView extends ViewGroup {
     Direction inDirection = null;
     boolean doubleConsonant = false;
 
-    private final static long ORIGINAL_BS_INTERVAL = 500;
-    private final static long MIN_BS_INTERVAL = 100;
-    private final static long BS_INTERVAL_DECREASE = 100;
+
+    //long press bs
+    private final static long ORIGINAL_BS_INTERVAL = 300;
+    private final static long MIN_BS_INTERVAL =50;
+    private final static long BS_INTERVAL_DECREASE = 200;
     long currBSInterval;
     long lastBSTime;
+    boolean BsByBentStarted = false;
 
     Direction startDirection;
 
@@ -351,8 +354,11 @@ public class InputFieldView extends ViewGroup {
                 prevIn = false;
                 inBackCount =0;
                 doubleConsonant= false;
+
+                //long press bs
                 currBSInterval = ORIGINAL_BS_INTERVAL;
                 lastBSTime = 0;
+                BsByBentStarted = false;
 
                 //benting init
                 angleDeltaSum = 0;
@@ -476,7 +482,8 @@ public class InputFieldView extends ViewGroup {
                                 Log.v("AngleDelta", String.format("BENT angleDeltaSum=%f -> %f", __tempAD, angleDeltaSum));
                                 bentPosition.add(new float[]{mCurX, mCurY});
                                 if(bentPosition.size() > 1){
-                                    if(startDirection == Direction.E){//bs direciton
+                                    if(startDirection == Direction.E ){//bs direciton
+                                        BsByBentStarted = true;
                                         messageListener.listenMessage(MessageListener.Type.special, "bs");
                                     }else {
                                         doubleConsonant = true;
@@ -522,15 +529,6 @@ public class InputFieldView extends ViewGroup {
                             prevIn = false;
                         }
                     }else {
-                        //it is in VI
-                        if(inDirection == backSpaceDir){
-                            /*if(System.currentTimeMillis() -  lastBSTime > currBSInterval){
-                                messageListener.listenMessage(MessageListener.Type.special, "bs");
-                                lastBSTime = System.currentTimeMillis();
-                                currBSInterval = currBSInterval - BS_INTERVAL_DECREASE;
-                                currBSInterval = currBSInterval > MIN_BS_INTERVAL ? currBSInterval : MIN_BS_INTERVAL;
-                            }*/
-                        }
                         // in VI again!
                         if(currIn == true){
                             ringUIView.setColorHeight(Color.WHITE);
@@ -543,6 +541,13 @@ public class InputFieldView extends ViewGroup {
                                 inBackCount++;
                             }*/
                             prevIn = true;
+                        }else if(inDirection == backSpaceDir &&  !BsByBentStarted){
+                            if(System.currentTimeMillis() -  lastBSTime > currBSInterval){
+                                messageListener.listenMessage(MessageListener.Type.special, "bs");
+                                lastBSTime = System.currentTimeMillis();
+                                currBSInterval = currBSInterval - BS_INTERVAL_DECREASE;
+                                currBSInterval = currBSInterval > MIN_BS_INTERVAL ? currBSInterval : MIN_BS_INTERVAL;
+                            }
                         }
                     }
                 }
@@ -723,19 +728,19 @@ public class InputFieldView extends ViewGroup {
                     //backsapce
                     return " ";
                 case NE:
-                    return doubleConsonant ? "ㄸ" : "ㄷ";
+                    return "ㅇ";
                 case N:
-                    return "ㄴ";
+                    return doubleConsonant ? "ㅆ" : "ㅅ";
                 case NW:
                     return doubleConsonant ? "ㄲ" : "ㄱ";
                 case W:
-                    return "ㅇ";
+                    return "ㄴ";
                 case SW:
-                    return doubleConsonant ? "ㅃ" : "ㅂ";
+                    return doubleConsonant ? "ㄸ" : "ㄷ";
                 case S:
-                    return doubleConsonant ? "ㅆ" : "ㅅ";
-                case SE:
                     return doubleConsonant ? "ㅉ" : "ㅈ";
+                case SE:
+                    return doubleConsonant ? "ㅃ" : "ㅂ";
             }
         }else if(k == keyPadType.J2){
             d = Direction.getOpposite(d);
@@ -744,21 +749,19 @@ public class InputFieldView extends ViewGroup {
                     //bs
                     return " ";
                 case NE:
-                    return "ㅌ";
+                    return "ㅁ";
                 case N:
-                    return "ㄹ";
+                    return "ㅎ";
                 case NW:
                     return "ㅋ";
                 case W:
-                    return "ㅁ";
+                    return "ㄹ";
                 case SW:
-                    return "ㅍ";
+                    return "ㅌ";
                 case S:
-                    return "ㅎ";
-                case SE:
                     return "ㅊ";
-
-
+                case SE:
+                    return "ㅍ";
             }
         }else if(k == keyPadType.M){
             switch (d){

@@ -294,6 +294,9 @@ public class TextConverter {
                             p_result.append(letter);
                             tmp_num = 0;
                         }
+                    }else{
+                        p_result.append(letter);
+                        tmp_num = 0;
                     }
 
                 }
